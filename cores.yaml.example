@@ -1,0 +1,28 @@
+# Nur für Tests und den technischen Betrieb ohne Portal. Der Compose-Aufbau bindet diese Datei nicht ein;
+# im Betrieb legt das Portal Kunden und Cores an. Wer sie doch nutzt, bindet sie am Collector ein
+# (Volume `./cores.yaml:/config/cores.yaml:ro`); die Portal-Datenbank hat Vorrang, sobald sie Kunden enthält.
+# Kopieren nach cores.yaml und anpassen. Hier stehen nur NAMEN von Umgebungsvariablen,
+# niemals Tokens. Die Tokens kommen aus der .env bzw. der Umgebung des Containers.
+# Die Aufbewahrung steht nicht hier, sondern in der .env (INFLUX_RETENTION_DAYS, Standard 365).
+
+customers:
+  - id: musterfirma
+    cores:
+      - id: core-hq
+        url: "https://prtg-hq.example.invalid:1616"
+        api_key_env: "PRTG_KEY_MUSTERFIRMA_HQ"
+        verify_ssl: true
+        interval_s: 60
+        filters:
+          tags: []            # leer = alles; sonst nur Objekte mit einem dieser Tags
+          groups: []          # Gruppennamen
+          sensor_types: []    # Sensortypen (Anzeigename)
+          name_regex: null    # Regulärer Ausdruck auf den Sensornamen
+
+  - id: beispiel-gmbh
+    cores:
+      - id: core-lab
+        url: "https://prtg-lab.example.invalid:1616"
+        api_key_env: "PRTG_KEY_BEISPIEL_LAB"
+        verify_ssl: false     # selbstsigniertes Zertifikat
+        interval_s: 60

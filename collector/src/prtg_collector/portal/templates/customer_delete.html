@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Kunde löschen{% endblock %}
+{% block content %}
+<h1>Kunde löschen: {{ customer_name }} ({{ customer_id }})</h1>
+<form class="karte" method="post" action="/customers/{{ customer_id }}/delete">
+  <input type="hidden" name="csrf" value="{{ csrf }}">
+  <p class="meldung fehler" role="alert">Das löscht unwiderruflich alle Messwerte dieses Kunden in der Datenbank, seine Grafana-Organisation mit allen Dashboards und Benutzerzuordnungen, die Zugriffsschlüssel und {{ cores|length }} Core-Server-Eintrag/-Einträge. Eine Sicherung vorher ist Ihre Sache.</p>
+  <label for="confirm">Zur Bestätigung die Kennung <strong>{{ customer_id }}</strong> eintippen</label>
+  <input id="confirm" name="confirm" type="text" autocomplete="off" required>
+  <div class="zeile"><button class="gefahr" type="submit">Kunde und Daten löschen</button>
+  <a class="knopf zweit" href="/">Abbrechen</a></div>
+</form>
+{% endblock %}

@@ -1,0 +1,64 @@
+[project]
+name = "prtg-collector"
+version = "0.3.3"
+license = "Apache-2.0"
+authors = [{ name = "netmon24 GmbH & Co. KG" }]
+description = "Holt PRTG-API-v2-Daten und schreibt sie in InfluxDB"
+requires-python = ">=3.12"
+dependencies = [
+    "httpx>=0.27",
+    "pydantic>=2.7",
+    "pyyaml>=6.0",
+    "influxdb-client>=1.45",
+    "cryptography>=50.0.2",
+    "fastapi>=0.162.4",
+    "uvicorn>=0.54.0",
+    "jinja2>=3.1.6",
+    "python-multipart>=0.0.33",
+    "acme>=3",
+    "josepy>=2.3.0",
+]
+
+[dependency-groups]
+build = ["hatchling==1.33.0"]
+dev = ["pytest>=8", "pytest-asyncio>=0.23", "ruff>=0.5", "mypy>=1.10", "types-pyyaml"]
+
+[build-system]
+requires = ["hatchling==1.33.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/prtg_collector"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src", "../scripts"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+markers = ["integration: braucht laufende InfluxDB (docker compose)"]
+addopts = "-m 'not integration'"
+filterwarnings = ["ignore:Using `httpx` with `starlette.testclient`:DeprecationWarning"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["RUF012", "S", "E501", "ASYNC"]
+"../scripts/*" = ["EXE001", "E501"]
+
+[[tool.mypy.overrides]]
+# influxdb-client liefert keine Typangaben
+module = ["influxdb_client.*"]
+follow_untyped_imports = true
+implicit_reexport = true
+
+[[tool.mypy.overrides]]
+module = ["prtg_collector.points", "prtg_collector.collector", "prtg_collector.writer", "prtg_collector.setup_tenants"]
+disallow_untyped_calls = false
+warn_return_any = false
+implicit_reexport = true

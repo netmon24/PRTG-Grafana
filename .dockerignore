@@ -1,0 +1,9 @@
+# Der Build-Kontext ist das Hauptverzeichnis. Nur, was das Dockerfile braucht, kommt hinein;
+# vor allem keine .env, kein .git und keine übersetzten Dateien mit Pfaden vom Entwicklerrechner.
+*
+!collector/pyproject.toml
+!collector/uv.lock
+!collector/src
+!grafana/dashboards
+**/__pycache__
+**/*.pyc

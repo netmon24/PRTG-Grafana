@@ -1,0 +1,29 @@
+name: Sicherheitsprüfung der Images
+
+# Wöchentlich: die Images, die die Compose-Datei zieht. Grafana und InfluxDB stammen von ihren Herstellern;
+# Funde dort sind ein Hinweis auf neuere Versionen, kein Abbruch.
+on:
+  schedule:
+    - cron: "17 5 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  trivy:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        image:
+          - grafana/grafana-oss:12.4.3
+          - influxdb:2.7
+          - ghcr.io/netmon24/prtg-grafana:latest
+    steps:
+      - uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: ${{ matrix.image }}
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: "0"

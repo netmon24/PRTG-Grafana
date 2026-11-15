@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Core-Server{% endblock %}
+{% macro val(key, default='') %}{{ (form.get(key) if form else none) if (form and form.get(key) is not none) else default }}{% endmacro %}
+{% block content %}
+<h1>{% if core %}Core-Server bearbeiten{% else %}Core-Server hinzufügen{% endif %}</h1>
+<form class="karte" method="post" action="{% if core %}/cores/{{ core.id }}{% else %}/customers/{{ customer_id }}/cores{% endif %}">
+  <input type="hidden" name="csrf" value="{{ csrf }}">
+  <label for="name">Name</label>
+  <input id="name" name="name" type="text" value="{{ val('name', core.name if core else '') }}" required>
+  {% if not core %}
+  <label for="id">Kennung</label>
+  <input id="id" name="id" type="text" value="{{ val('id') }}" pattern="[a-z0-9_-]{1,32}" required>
+  <p class="hilfe">Nur Kleinbuchstaben, Ziffern, _ und -. Später nicht änderbar.</p>
+  {% endif %}
+  <label for="url">Adresse der PRTG API v2</label>
+  <input id="url" name="url" type="url" value="{{ val('url', core.url if core else 'https://') }}" placeholder="https://prtg.firma.de:1616" required>
+  <p class="hilfe">Die API v2 läuft auf Port 1616, nicht auf dem Port der klassischen Weboberfläche.</p>
+  <label for="api_key">API-Key</label>
+  <input id="api_key" name="api_key" type="password" autocomplete="off" value="" {% if not core or not core.has_key %}required{% endif %}
+         placeholder="{% if core and core.has_key %}••••••••  gespeichert – leer lassen, um ihn zu behalten{% endif %}">
+  <p class="hilfe">In PRTG unter Konto-Einstellungen, Mein Konto, API-Keys erzeugen (neue Oberfläche). Empfohlen: Benutzer mit Leserechten.</p>
+  <label for="verify_mode">Zertifikat des Core-Servers</label>
+  <select id="verify_mode" name="verify_mode">
+    {% set vm = val('verify_mode', core.verify_mode if core else 'system') %}
+    <option value="system" {% if vm=='system' %}selected{% endif %}>Prüfen (empfohlen)</option>
+    <option value="ca" {% if vm=='ca' %}selected{% endif %}>Mit eigener CA-Datei prüfen</option>
+    {% if core and core.verify_mode=='pinned' %}<option value="pinned" selected>Fingerabdruck vertraut</option>{% endif %}
+    <option value="off" {% if vm=='off' %}selected{% endif %}>Nicht prüfen (nur für Tests)</option>
+  </select>
+  <p class="hilfe">Bei einem selbstsignierten Zertifikat „Verbindung testen“ wählen: Dort können Sie dem Zertifikat per Klick vertrauen.</p>
+  <label for="ca_pem">CA-Zertifikat (nur bei „eigene CA-Datei“, PEM)</label>
+  <textarea id="ca_pem" name="ca_pem">{{ val('ca_pem') }}</textarea>
+  <label for="interval_s">Abruftakt in Sekunden</label>
+  <input id="interval_s" name="interval_s" type="number" min="10" value="{{ val('interval_s', core.interval_s if core else 60) }}">
+  <details><summary>Filter (optional)</summary>
+    <label for="filter_tags">Nur Objekte mit diesen Tags</label>
+    <input id="filter_tags" name="filter_tags" type="text" value="{{ val('filter_tags', (core.filters.tags|join(', ')) if core else '') }}">
+    <label for="filter_groups">Nur diese Gruppen</label>
+    <input id="filter_groups" name="filter_groups" type="text" value="{{ val('filter_groups', (core.filters.groups|join(', ')) if core else '') }}">
+    <label for="filter_types">Nur diese Sensortypen</label>
+    <input id="filter_types" name="filter_types" type="text" value="{{ val('filter_types', (core.filters.sensor_types|join(', ')) if core else '') }}">
+    <label for="filter_regex">Sensorname passt auf (regulärer Ausdruck)</label>
+    <input id="filter_regex" name="filter_regex" type="text" value="{{ val('filter_regex', (core.filters.name_regex or '') if core else '') }}">
+    <p class="hilfe">Mehrere Werte mit Komma trennen. Leer bedeutet: alles abrufen.</p>
+  </details>
+  <div class="zeile"><button type="submit">Speichern</button><a class="knopf zweit" href="/">Zurück</a></div>
+</form>
+{% if core %}
+<form class="karte" method="post" action="/cores/{{ core.id }}/test">
+  <input type="hidden" name="csrf" value="{{ csrf }}">
+  <h2>Verbindung prüfen</h2>
+  <p class="hilfe">Prüft Erreichbarkeit, API-Key und Zertifikat mit den gespeicherten Angaben.</p>
+  <div class="zeile"><button type="submit">Verbindung testen</button></div>
+</form>
+<form class="karte" method="post" action="/cores/{{ core.id }}/delete">
+  <input type="hidden" name="csrf" value="{{ csrf }}">
+  <h2>Core-Server entfernen</h2>
+  <p class="meldung fehler">Alle gespeicherten Messwerte dieses Core-Servers werden unwiderruflich gelöscht.</p>
+  <label for="confirm">Zur Bestätigung die Kennung <strong>{{ core.id }}</strong> eintippen</label>
+  <input id="confirm" name="confirm" type="text" autocomplete="off" required>
+  <div class="zeile"><button class="gefahr" type="submit">Core-Server und Daten löschen</button></div>
+</form>
+{% endif %}
+{% endblock %}

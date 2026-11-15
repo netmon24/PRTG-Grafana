@@ -1,0 +1,1146 @@
+{
+  "uid": "prtg-geraetestatus",
+  "title": "Gerätestatus",
+  "tags": [
+    "netmon24",
+    "prtg",
+    "geraete",
+    "vorlage"
+  ],
+  "timezone": "browser",
+  "editable": true,
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "5m",
+  "timepicker": {
+    "refresh_intervals": [
+      "5m",
+      "15m",
+      "30m",
+      "1h"
+    ]
+  },
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "templating": {
+    "list": [
+      {
+        "name": "core",
+        "label": "Core",
+        "type": "query",
+        "datasource": {
+          "type": "influxdb",
+          "uid": "prtg-influx"
+        },
+        "query": "import \"influxdata/influxdb/schema\"\nschema.tagValues(bucket: v.defaultBucket, tag: \"core\")",
+        "refresh": 2,
+        "multi": true,
+        "includeAll": true,
+        "sort": 5,
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "allValue": ".*"
+      },
+      {
+        "name": "group",
+        "label": "Gruppe",
+        "type": "query",
+        "datasource": {
+          "type": "influxdb",
+          "uid": "prtg-influx"
+        },
+        "query": "import \"influxdata/influxdb/schema\"\nschema.tagValues(bucket: v.defaultBucket, tag: \"group\", start: -7d, predicate: (r) => r._measurement == \"prtg_device\" and r._field == \"sensor_count\")",
+        "refresh": 2,
+        "multi": true,
+        "includeAll": true,
+        "sort": 5,
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "allValue": ".*"
+      },
+      {
+        "name": "device",
+        "label": "Gerät",
+        "type": "query",
+        "datasource": {
+          "type": "influxdb",
+          "uid": "prtg-influx"
+        },
+        "query": "import \"influxdata/influxdb/schema\"\nschema.tagValues(bucket: v.defaultBucket, tag: \"device\", start: -7d, predicate: (r) => r._measurement == \"prtg_device\" and r._field == \"sensor_count\")",
+        "refresh": 2,
+        "multi": true,
+        "includeAll": true,
+        "sort": 5,
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "allValue": ".*"
+      },
+      {
+        "name": "tag",
+        "label": "Tag",
+        "type": "query",
+        "datasource": {
+          "type": "influxdb",
+          "uid": "prtg-influx"
+        },
+        "query": "import \"influxdata/influxdb/schema\"\nschema.tagValues(bucket: v.defaultBucket, tag: \"prtg_tag\", start: -7d, predicate: (r) => r._measurement == \"prtg_tag_catalog\" and r._field == \"count\")",
+        "refresh": 2,
+        "multi": true,
+        "includeAll": true,
+        "sort": 5,
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "allValue": ".*"
+      },
+      {
+        "name": "tag2",
+        "label": "Tag 2 (und)",
+        "type": "query",
+        "datasource": {
+          "type": "influxdb",
+          "uid": "prtg-influx"
+        },
+        "query": "import \"influxdata/influxdb/schema\"\nschema.tagValues(bucket: v.defaultBucket, tag: \"prtg_tag\", start: -7d, predicate: (r) => r._measurement == \"prtg_tag_catalog\" and r._field == \"count\")",
+        "refresh": 2,
+        "multi": true,
+        "includeAll": true,
+        "sort": 5,
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "allValue": ".*"
+      },
+      {
+        "name": "tag3",
+        "label": "Tag 3 (und)",
+        "type": "query",
+        "datasource": {
+          "type": "influxdb",
+          "uid": "prtg-influx"
+        },
+        "query": "import \"influxdata/influxdb/schema\"\nschema.tagValues(bucket: v.defaultBucket, tag: \"prtg_tag\", start: -7d, predicate: (r) => r._measurement == \"prtg_tag_catalog\" and r._field == \"count\")",
+        "refresh": 2,
+        "multi": true,
+        "includeAll": true,
+        "sort": 5,
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "allValue": ".*"
+      },
+      {
+        "name": "stype",
+        "label": "Sensortyp",
+        "type": "query",
+        "datasource": {
+          "type": "influxdb",
+          "uid": "prtg-influx"
+        },
+        "query": "import \"influxdata/influxdb/schema\"\nschema.tagValues(bucket: v.defaultBucket, tag: \"sensor_type\", start: -7d, predicate: (r) => r._measurement == \"prtg_sensor_status\" and r._field == \"status_code\")",
+        "refresh": 2,
+        "multi": true,
+        "includeAll": true,
+        "sort": 5,
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "allValue": ".*"
+      },
+      {
+        "name": "status",
+        "label": "Status",
+        "type": "custom",
+        "query": "OK : 0,Warnung : 1,Ausfall : 2,Pausiert : 3,Unbekannt : 4",
+        "multi": true,
+        "includeAll": true,
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "allValue": "0|1|2|3|4"
+      }
+    ]
+  },
+  "annotations": {
+    "list": []
+  },
+  "links": [
+    {
+      "type": "dashboards",
+      "title": "Weitere Dashboards",
+      "tags": [
+        "netmon24"
+      ],
+      "asDropdown": true,
+      "includeVars": true,
+      "keepTime": true
+    }
+  ],
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "Geräte gesamt",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "prtg-influx"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 3,
+        "h": 4
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "prtg-influx"
+          },
+          "query": "from(bucket: v.defaultBucket)\n  |> range(start: -15m)\n  |> filter(fn: (r) => r._measurement == \"prtg_device\" and r._field == \"status_code\")\n  |> filter(fn: (r) => r.core =~ /^${core:regex}$/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag:regex}(\\||$)/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag2:regex}(\\||$)/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag3:regex}(\\||$)/)\n  |> filter(fn: (r) => r.group =~ /^${group:regex}$/)\n  |> filter(fn: (r) => r.device =~ /^${device:regex}$/)\n  |> last()\n  |> group(columns: [\"core\", \"device_id\", \"_field\"])\n  |> top(n: 1, columns: [\"_time\"])\n  \n  |> group()\n  |> count()"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "noValue": "0",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#0b4a59",
+                "value": null
+              }
+            ]
+          },
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "center",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      }
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Geräte mit Status OK",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "prtg-influx"
+      },
+      "gridPos": {
+        "x": 3,
+        "y": 0,
+        "w": 3,
+        "h": 4
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "prtg-influx"
+          },
+          "query": "from(bucket: v.defaultBucket)\n  |> range(start: -15m)\n  |> filter(fn: (r) => r._measurement == \"prtg_device\" and r._field == \"status_code\")\n  |> filter(fn: (r) => r.core =~ /^${core:regex}$/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag:regex}(\\||$)/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag2:regex}(\\||$)/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag3:regex}(\\||$)/)\n  |> filter(fn: (r) => r.group =~ /^${group:regex}$/)\n  |> filter(fn: (r) => r.device =~ /^${device:regex}$/)\n  |> last()\n  |> group(columns: [\"core\", \"device_id\", \"_field\"])\n  |> top(n: 1, columns: [\"_time\"])\n  |> filter(fn: (r) => r._value == 0)\n  |> group()\n  |> count()"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "noValue": "0",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#35d763",
+                "value": null
+              }
+            ]
+          },
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "center",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      }
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "Geräte mit Status Warnung",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "prtg-influx"
+      },
+      "gridPos": {
+        "x": 6,
+        "y": 0,
+        "w": 3,
+        "h": 4
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "prtg-influx"
+          },
+          "query": "from(bucket: v.defaultBucket)\n  |> range(start: -15m)\n  |> filter(fn: (r) => r._measurement == \"prtg_device\" and r._field == \"status_code\")\n  |> filter(fn: (r) => r.core =~ /^${core:regex}$/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag:regex}(\\||$)/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag2:regex}(\\||$)/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag3:regex}(\\||$)/)\n  |> filter(fn: (r) => r.group =~ /^${group:regex}$/)\n  |> filter(fn: (r) => r.device =~ /^${device:regex}$/)\n  |> last()\n  |> group(columns: [\"core\", \"device_id\", \"_field\"])\n  |> top(n: 1, columns: [\"_time\"])\n  |> filter(fn: (r) => r._value == 1)\n  |> group()\n  |> count()"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "noValue": "0",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#35d763",
+                "value": null
+              },
+              {
+                "color": "#f2c94c",
+                "value": 1
+              }
+            ]
+          },
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "center",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      }
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "Geräte mit Status Ausfall",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "prtg-influx"
+      },
+      "gridPos": {
+        "x": 9,
+        "y": 0,
+        "w": 3,
+        "h": 4
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "prtg-influx"
+          },
+          "query": "from(bucket: v.defaultBucket)\n  |> range(start: -15m)\n  |> filter(fn: (r) => r._measurement == \"prtg_device\" and r._field == \"status_code\")\n  |> filter(fn: (r) => r.core =~ /^${core:regex}$/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag:regex}(\\||$)/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag2:regex}(\\||$)/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag3:regex}(\\||$)/)\n  |> filter(fn: (r) => r.group =~ /^${group:regex}$/)\n  |> filter(fn: (r) => r.device =~ /^${device:regex}$/)\n  |> last()\n  |> group(columns: [\"core\", \"device_id\", \"_field\"])\n  |> top(n: 1, columns: [\"_time\"])\n  |> filter(fn: (r) => r._value == 2)\n  |> group()\n  |> count()"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "noValue": "0",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#35d763",
+                "value": null
+              },
+              {
+                "color": "#e5484d",
+                "value": 1
+              }
+            ]
+          },
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "center",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      }
+    },
+    {
+      "id": 5,
+      "type": "stat",
+      "title": "Geräte mit Status Pausiert",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "prtg-influx"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 0,
+        "w": 3,
+        "h": 4
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "prtg-influx"
+          },
+          "query": "from(bucket: v.defaultBucket)\n  |> range(start: -15m)\n  |> filter(fn: (r) => r._measurement == \"prtg_device\" and r._field == \"status_code\")\n  |> filter(fn: (r) => r.core =~ /^${core:regex}$/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag:regex}(\\||$)/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag2:regex}(\\||$)/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag3:regex}(\\||$)/)\n  |> filter(fn: (r) => r.group =~ /^${group:regex}$/)\n  |> filter(fn: (r) => r.device =~ /^${device:regex}$/)\n  |> last()\n  |> group(columns: [\"core\", \"device_id\", \"_field\"])\n  |> top(n: 1, columns: [\"_time\"])\n  |> filter(fn: (r) => r._value == 3)\n  |> group()\n  |> count()"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "noValue": "0",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#4aa8ff",
+                "value": null
+              }
+            ]
+          },
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "center",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      }
+    },
+    {
+      "id": 6,
+      "type": "stat",
+      "title": "Geräte mit Status Unbekannt",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "prtg-influx"
+      },
+      "gridPos": {
+        "x": 15,
+        "y": 0,
+        "w": 9,
+        "h": 4
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "prtg-influx"
+          },
+          "query": "from(bucket: v.defaultBucket)\n  |> range(start: -15m)\n  |> filter(fn: (r) => r._measurement == \"prtg_device\" and r._field == \"status_code\")\n  |> filter(fn: (r) => r.core =~ /^${core:regex}$/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag:regex}(\\||$)/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag2:regex}(\\||$)/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag3:regex}(\\||$)/)\n  |> filter(fn: (r) => r.group =~ /^${group:regex}$/)\n  |> filter(fn: (r) => r.device =~ /^${device:regex}$/)\n  |> last()\n  |> group(columns: [\"core\", \"device_id\", \"_field\"])\n  |> top(n: 1, columns: [\"_time\"])\n  |> filter(fn: (r) => r._value == 4)\n  |> group()\n  |> count()"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "noValue": "0",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#8a9ba0",
+                "value": null
+              }
+            ]
+          },
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "center",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      }
+    },
+    {
+      "id": 8,
+      "type": "table",
+      "title": "Geräte mit Status",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "prtg-influx"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 4,
+        "w": 24,
+        "h": 9
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "prtg-influx"
+          },
+          "query": "from(bucket: v.defaultBucket)\n  |> range(start: -15m)\n  |> filter(fn: (r) => r._measurement == \"prtg_device\")\n  |> filter(fn: (r) => r._field == \"status_code\" or r._field == \"sensor_count\" or r._field == \"sensors_down\" or r._field == \"sensors_warning\")\n  |> filter(fn: (r) => r.core =~ /^${core:regex}$/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag:regex}(\\||$)/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag2:regex}(\\||$)/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag3:regex}(\\||$)/)\n  |> filter(fn: (r) => r.group =~ /^${group:regex}$/)\n  |> filter(fn: (r) => r.device =~ /^${device:regex}$/)\n  |> last()\n  |> group(columns: [\"core\", \"device_id\", \"_field\"])\n  |> top(n: 1, columns: [\"_time\"])\n  |> group()\n  |> pivot(rowKey: [\"core\", \"device_id\", \"device\", \"dns_name\", \"host\", \"group\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> keep(columns: [\"device\", \"dns_name\", \"host\", \"group\", \"status_code\", \"sensor_count\", \"sensors_down\", \"sensors_warning\"])\n  |> map(fn: (r) => ({r with rank: if r.status_code == 2 then 0 else if r.status_code == 1 then 1 else if r.status_code == 4 then 2 else if r.status_code == 3 then 3 else 4}))\n  |> sort(columns: [\"rank\", \"device\"])\n  |> drop(columns: [\"rank\"])"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "indexByName": {
+              "device": 0,
+              "dns_name": 1,
+              "host": 2,
+              "group": 3,
+              "status_code": 4,
+              "sensor_count": 5,
+              "sensors_down": 6,
+              "sensors_warning": 7
+            }
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "noValue": "Keine Daten im gewählten Zeitraum",
+          "custom": {
+            "align": "auto"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "status_code"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "0": {
+                        "text": "OK",
+                        "color": "#35d763",
+                        "index": 0
+                      },
+                      "1": {
+                        "text": "Warnung",
+                        "color": "#f2c94c",
+                        "index": 1
+                      },
+                      "2": {
+                        "text": "Ausfall",
+                        "color": "#e5484d",
+                        "index": 2
+                      },
+                      "3": {
+                        "text": "Pausiert",
+                        "color": "#4aa8ff",
+                        "index": 3
+                      },
+                      "4": {
+                        "text": "Unbekannt",
+                        "color": "#8a9ba0",
+                        "index": 4
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Status (schlechtester Sensor)"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "device"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "Kanalverlauf öffnen",
+                    "url": "/d/prtg-kanalverlauf?var-device=${__value.text}&${__url_time_range}"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "device"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Gerät"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "dns_name"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "DNS-Name"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "host"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Host"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "group"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Gruppe"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "sensor_count"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Sensoren"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "sensors_down"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "davon Ausfall"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "sensors_warning"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "davon Warnung"
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "sortBy": []
+      }
+    },
+    {
+      "id": 9,
+      "type": "table",
+      "title": "Sensoren nach Auswahl",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "prtg-influx"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 13,
+        "w": 24,
+        "h": 10
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "prtg-influx"
+          },
+          "query": "import \"strings\"\n\nfrom(bucket: v.defaultBucket)\n  |> range(start: -15m)\n  |> filter(fn: (r) => r._measurement == \"prtg_sensor_status\")\n  |> filter(fn: (r) => r._field == \"status_code\" or r._field == \"message\")\n  |> filter(fn: (r) => r.core =~ /^${core:regex}$/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag:regex}(\\||$)/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag2:regex}(\\||$)/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag3:regex}(\\||$)/)\n  |> filter(fn: (r) => r.group =~ /^${group:regex}$/)\n  |> filter(fn: (r) => r.device =~ /^${device:regex}$/)\n  |> filter(fn: (r) => r.sensor_type =~ /^${stype:regex}$/)\n  |> last()\n  |> group(columns: [\"core\", \"sensor_id\", \"_field\"])\n  |> top(n: 1, columns: [\"_time\"])\n  |> map(fn: (r) => ({r with _value: string(v: r._value)}))\n  |> group()\n  |> pivot(rowKey: [\"core\", \"device\", \"sensor\", \"sensor_id\", \"sensor_type\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> filter(fn: (r) => r.status_code =~ /^(${status:regex})$/)\n  |> map(fn: (r) => ({r with status_code: int(v: r.status_code), message: if exists r.message then strings.substring(v: r.message, start: 0, end: 80) else \"\"}))\n  |> keep(columns: [\"device\", \"sensor\", \"sensor_type\", \"status_code\", \"message\"])\n  |> map(fn: (r) => ({r with rank: if r.status_code == 2 then 0 else if r.status_code == 1 then 1 else if r.status_code == 4 then 2 else if r.status_code == 3 then 3 else 4}))\n  |> sort(columns: [\"rank\", \"device\", \"sensor\"])\n  |> drop(columns: [\"rank\"])"
+        }
+      ],
+      "transformations": [],
+      "fieldConfig": {
+        "defaults": {
+          "noValue": "Keine Daten im gewählten Zeitraum",
+          "custom": {
+            "align": "auto"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "status_code"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "0": {
+                        "text": "OK",
+                        "color": "#35d763",
+                        "index": 0
+                      },
+                      "1": {
+                        "text": "Warnung",
+                        "color": "#f2c94c",
+                        "index": 1
+                      },
+                      "2": {
+                        "text": "Ausfall",
+                        "color": "#e5484d",
+                        "index": 2
+                      },
+                      "3": {
+                        "text": "Pausiert",
+                        "color": "#4aa8ff",
+                        "index": 3
+                      },
+                      "4": {
+                        "text": "Unbekannt",
+                        "color": "#8a9ba0",
+                        "index": 4
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Status"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "device"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "Kanalverlauf öffnen",
+                    "url": "/d/prtg-kanalverlauf?var-device=${__value.text}&${__url_time_range}"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "device"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Gerät"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "sensor"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Sensor"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "sensor_type"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Typ"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "message"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Meldung"
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "sortBy": []
+      }
+    },
+    {
+      "id": 10,
+      "type": "timeseries",
+      "title": "Sensoren im Status Ausfall und Warnung im Verlauf",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "prtg-influx"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 23,
+        "w": 16,
+        "h": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "prtg-influx"
+          },
+          "query": "from(bucket: v.defaultBucket)\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"prtg_sensor_status\" and r._field == \"status_code\")\n  |> filter(fn: (r) => r.core =~ /^${core:regex}$/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag:regex}(\\||$)/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag2:regex}(\\||$)/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag3:regex}(\\||$)/)\n  |> filter(fn: (r) => r.group =~ /^${group:regex}$/)\n  |> filter(fn: (r) => r.device =~ /^${device:regex}$/)\n  |> filter(fn: (r) => r._value == 2)\n  |> group(columns: [\"core\", \"sensor_id\"])\n  |> filter(fn: (r) => r.sensor_type =~ /^${stype:regex}$/)\n  |> aggregateWindow(every: v.windowPeriod, fn: count, createEmpty: false)\n  |> map(fn: (r) => ({r with _value: 1}))\n  |> group(columns: [\"_time\"])\n  |> sum()\n  |> group()\n  |> rename(columns: {_value: \"Ausfall\"})\n  |> sort(columns: [\"_time\"])"
+        },
+        {
+          "refId": "B",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "prtg-influx"
+          },
+          "query": "from(bucket: v.defaultBucket)\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"prtg_sensor_status\" and r._field == \"status_code\")\n  |> filter(fn: (r) => r.core =~ /^${core:regex}$/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag:regex}(\\||$)/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag2:regex}(\\||$)/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag3:regex}(\\||$)/)\n  |> filter(fn: (r) => r.group =~ /^${group:regex}$/)\n  |> filter(fn: (r) => r.device =~ /^${device:regex}$/)\n  |> filter(fn: (r) => r._value == 1)\n  |> group(columns: [\"core\", \"sensor_id\"])\n  |> filter(fn: (r) => r.sensor_type =~ /^${stype:regex}$/)\n  |> aggregateWindow(every: v.windowPeriod, fn: count, createEmpty: false)\n  |> map(fn: (r) => ({r with _value: 1}))\n  |> group(columns: [\"_time\"])\n  |> sum()\n  |> group()\n  |> rename(columns: {_value: \"Warnung\"})\n  |> sort(columns: [\"_time\"])"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "decimals": 0,
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 12,
+            "showPoints": "never"
+          },
+          "noValue": "Keine Daten im gewählten Zeitraum"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Ausfall"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#e5484d"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Warnung"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "#f2c94c"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    },
+    {
+      "id": 11,
+      "type": "text",
+      "title": "So bauen Sie eine eigene Ansicht",
+      "gridPos": {
+        "x": 16,
+        "y": 23,
+        "w": 8,
+        "h": 8
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "**So bauen Sie eine eigene Ansicht:** Wählen Sie oben Core, Tag, Gruppe, Gerät, Sensortyp und Status. Kacheln, Geräteliste, Sensorliste und Verlauf passen sich an. Über Speichern unter (Dashboard-Einstellungen) legen Sie die Auswahl als eigenes Dashboard im Ordner Eigene ab. Kein Code nötig.\n\nDie Kacheln und die Geräteliste zählen Geräte (Filter: Core, Tag, Gruppe, Gerät). Sensorliste und Verlauf zusätzlich nach Sensortyp, die Sensorliste auch nach Status. Ein Klick auf ein Gerät öffnet den Kanalverlauf."
+      }
+    },
+    {
+      "id": 12,
+      "type": "text",
+      "title": "Hinweis zur Anzeige",
+      "gridPos": {
+        "x": 4,
+        "y": 31,
+        "w": 16,
+        "h": 4
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "**Datenstand:** Alter des letzten Abrufs der PRTG-Daten, gelb nach 3, rot nach 10 Abrufintervallen. Die Ansicht aktualisiert sich alle 5 Minuten. Zeigt ein Feld einen Fehler oder bleibt es leer, ist die Datenbank gerade nicht erreichbar oder der Collector liefert nichts; die Felder füllen sich nach der Wiederkehr von selbst.\n\n**Auswahl:** Die Felder Core, Gruppe, Gerät, Tag, Sensortyp und Status wirken zusammen als „und“. Mehrere Werte innerhalb eines Feldes gelten als „oder“. „All“ filtert nicht. Die Felder Tag, Tag 2 und Tag 3 gelten ebenfalls als „und“: ein Objekt muss zu jedem Feld mit Auswahl passen (Tag `web`, Tag 2 `db`: nur Objekte mit beiden Tags)."
+      }
+    },
+    {
+      "id": 13,
+      "type": "stat",
+      "title": "Datenstand (Alter des letzten Abrufs)",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "prtg-influx"
+      },
+      "gridPos": {
+        "x": 20,
+        "y": 31,
+        "w": 4,
+        "h": 4
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "prtg-influx"
+          },
+          "query": "from(bucket: v.defaultBucket)\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"collector_run\" and r._field == \"errors\")\n  |> filter(fn: (r) => r.core =~ /^${core:regex}$/)\n  |> last()\n  |> group()\n  |> sort(columns: [\"_time\"], desc: true)\n  |> limit(n: 1)\n  |> map(fn: (r) => ({_time: r._time, _value: float(v: int(v: now()) - int(v: r._time)) / 1000000000.0}))"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "dtdurations",
+          "noValue": "kein Abruf",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#35d763",
+                "value": null
+              },
+              {
+                "color": "#f2c94c",
+                "value": 180
+              },
+              {
+                "color": "#e5484d",
+                "value": 600
+              }
+            ]
+          },
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "center",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {
+          "titleSize": 11,
+          "valueSize": 18
+        }
+      }
+    }
+  ]
+}

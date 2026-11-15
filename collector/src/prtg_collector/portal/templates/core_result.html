@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Verbindungstest{% endblock %}
+{% block content %}
+<h1>Verbindungstest: {{ core.name }}</h1>
+{% if result %}
+  <p class="meldung {{ 'ok' if result.ok else 'fehler' }}" role="status">{{ result.message_de }}</p>
+  {% if result.code in ('tls_untrusted', 'tls_changed') and result.cert %}
+  <form class="karte" method="post" action="/cores/{{ core.id }}/trust">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <input type="hidden" name="sha256" value="{{ result.cert.sha256 }}">
+    <h2>Zertifikat des Core-Servers</h2>
+    <dl><dt>Ausgestellt für</dt><dd>{{ result.cert.subject }}</dd>
+        <dt>Aussteller</dt><dd>{{ result.cert.issuer }}</dd>
+        <dt>Gültig bis</dt><dd>{{ result.cert.not_after.strftime('%d.%m.%Y') }}</dd></dl>
+    <p>Fingerabdruck (SHA-256):</p><p class="finger">{{ result.cert.sha256_pretty }}</p>
+    <div class="zeile"><button type="submit">Diesem Zertifikat vertrauen</button></div>
+  </form>
+  {% endif %}
+{% endif %}
+<div class="zeile"><a class="knopf zweit" href="/cores/{{ core.id }}/edit">Zurück zum Core-Server</a></div>
+{% endblock %}

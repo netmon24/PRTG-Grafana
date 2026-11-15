@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Übersicht{% endblock %}
+{% block content %}
+<div class="kopf"><h1>Übersicht</h1><a class="knopf" href="/customers/new">Kunde hinzufügen</a></div>
+{% for line in setup_problems %}<p class="meldung fehler" role="alert">Einrichtung: {{ line }}</p>{% endfor %}
+{% for g in groups %}
+<section class="karte" aria-labelledby="k-{{ g.customer['id'] }}">
+  <div class="kopf">
+    <h2 id="k-{{ g.customer['id'] }}">{{ g.customer['name'] }} <small>({{ g.customer['id'] }})</small></h2>
+    <a class="knopf zweit" href="/customers/{{ g.customer['id'] }}/cores/new">Core-Server hinzufügen</a>
+    <a class="knopf zweit" href="/customers/{{ g.customer['id'] }}/delete">Kunde löschen</a>
+  </div>
+  {% for core, run in g.cores %}
+  <div class="karte">
+    <div class="kopf">
+      <div><strong>{{ core.name }}</strong><br><span class="hilfe">{{ core.url }}</span></div>
+      <a class="knopf zweit" href="/cores/{{ core.id }}/edit">Bearbeiten</a>
+    </div>
+    {% if run is none %}<p class="ampel offen">noch nie abgerufen</p>
+    {% elif run.errors %}<p class="ampel fehler">Fehler beim letzten Abruf ({{ run.at }}): {{ run.last_error or "unbekannt" }}</p>
+    {% else %}<p class="ampel ok">läuft, letzter Abruf {{ run.at }}</p>{% endif %}
+    {% if core.last_test_at %}<p class="hilfe">Letzter Verbindungstest ({{ core.last_test_at }}): {{ core.last_test_message }}</p>{% endif %}
+  </div>
+  {% else %}<p class="hilfe">Noch kein Core-Server angelegt.</p>{% endfor %}
+</section>
+{% else %}
+<p class="karte">Noch kein Kunde angelegt. Beginnen Sie mit „Kunde hinzufügen“.</p>
+{% endfor %}
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Kunde hinzufügen{% endblock %}
+{% block content %}
+<h1>Kunde hinzufügen</h1>
+<form class="karte" method="post" action="/customers">
+  <input type="hidden" name="csrf" value="{{ csrf }}">
+  <label for="name">Name des Kunden</label>
+  <input id="name" name="name" type="text" value="{{ (form or {}).get('name','') }}" required>
+  <label for="id">Kennung</label>
+  <input id="id" name="id" type="text" value="{{ (form or {}).get('id','') }}" pattern="[a-z0-9_-]{1,32}" required>
+  <p class="hilfe">Nur Kleinbuchstaben, Ziffern, _ und -. Die Kennung bestimmt den Namen der Datenbank und lässt sich später nicht ändern.</p>
+  <div class="zeile"><button type="submit">Kunde anlegen</button><a class="knopf zweit" href="/">Abbrechen</a></div>
+</form>
+{% endblock %}

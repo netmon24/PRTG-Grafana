@@ -1,0 +1,900 @@
+{
+  "uid": "prtg-verfuegbarkeit",
+  "title": "2 Verfügbarkeit Maschinen und Geräte",
+  "tags": [
+    "netmon24",
+    "prtg",
+    "verfuegbarkeit"
+  ],
+  "timezone": "browser",
+  "editable": true,
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "5m",
+  "timepicker": {
+    "refresh_intervals": [
+      "5m",
+      "15m",
+      "30m",
+      "1h"
+    ]
+  },
+  "time": {
+    "from": "now-7d",
+    "to": "now"
+  },
+  "templating": {
+    "list": [
+      {
+        "name": "core",
+        "label": "Core",
+        "type": "query",
+        "datasource": {
+          "type": "influxdb",
+          "uid": "prtg-influx"
+        },
+        "query": "import \"influxdata/influxdb/schema\"\nschema.tagValues(bucket: v.defaultBucket, tag: \"core\")",
+        "refresh": 2,
+        "multi": true,
+        "includeAll": true,
+        "sort": 5,
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "allValue": ".*"
+      },
+      {
+        "name": "group",
+        "label": "Gruppe",
+        "type": "query",
+        "datasource": {
+          "type": "influxdb",
+          "uid": "prtg-influx"
+        },
+        "query": "import \"influxdata/influxdb/schema\"\nschema.tagValues(bucket: v.defaultBucket, tag: \"group\", start: -7d, predicate: (r) => r._measurement == \"prtg_device\" and r._field == \"sensor_count\")",
+        "refresh": 2,
+        "multi": true,
+        "includeAll": true,
+        "sort": 5,
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "allValue": ".*"
+      },
+      {
+        "name": "device",
+        "label": "Gerät",
+        "type": "query",
+        "datasource": {
+          "type": "influxdb",
+          "uid": "prtg-influx"
+        },
+        "query": "import \"influxdata/influxdb/schema\"\nschema.tagValues(bucket: v.defaultBucket, tag: \"device\", start: -7d, predicate: (r) => r._measurement == \"prtg_device\" and r._field == \"sensor_count\")",
+        "refresh": 2,
+        "multi": true,
+        "includeAll": true,
+        "sort": 5,
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "allValue": ".*"
+      },
+      {
+        "name": "tag",
+        "label": "Tag",
+        "type": "query",
+        "datasource": {
+          "type": "influxdb",
+          "uid": "prtg-influx"
+        },
+        "query": "import \"influxdata/influxdb/schema\"\nschema.tagValues(bucket: v.defaultBucket, tag: \"prtg_tag\", start: -7d, predicate: (r) => r._measurement == \"prtg_tag_catalog\" and r._field == \"count\")",
+        "refresh": 2,
+        "multi": true,
+        "includeAll": true,
+        "sort": 5,
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "allValue": ".*"
+      },
+      {
+        "name": "tag2",
+        "label": "Tag 2 (und)",
+        "type": "query",
+        "datasource": {
+          "type": "influxdb",
+          "uid": "prtg-influx"
+        },
+        "query": "import \"influxdata/influxdb/schema\"\nschema.tagValues(bucket: v.defaultBucket, tag: \"prtg_tag\", start: -7d, predicate: (r) => r._measurement == \"prtg_tag_catalog\" and r._field == \"count\")",
+        "refresh": 2,
+        "multi": true,
+        "includeAll": true,
+        "sort": 5,
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "allValue": ".*"
+      },
+      {
+        "name": "tag3",
+        "label": "Tag 3 (und)",
+        "type": "query",
+        "datasource": {
+          "type": "influxdb",
+          "uid": "prtg-influx"
+        },
+        "query": "import \"influxdata/influxdb/schema\"\nschema.tagValues(bucket: v.defaultBucket, tag: \"prtg_tag\", start: -7d, predicate: (r) => r._measurement == \"prtg_tag_catalog\" and r._field == \"count\")",
+        "refresh": 2,
+        "multi": true,
+        "includeAll": true,
+        "sort": 5,
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "allValue": ".*"
+      }
+    ]
+  },
+  "annotations": {
+    "list": []
+  },
+  "links": [
+    {
+      "type": "dashboards",
+      "title": "Weitere Dashboards",
+      "tags": [
+        "netmon24"
+      ],
+      "asDropdown": true,
+      "includeVars": true,
+      "keepTime": true
+    }
+  ],
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "Verfügbarkeit 24 Stunden",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "prtg-influx"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 6,
+        "h": 4
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "prtg-influx"
+          },
+          "query": "from(bucket: v.defaultBucket)\n  |> range(start: -24h)\n  |> filter(fn: (r) => r._measurement == \"prtg_device\" and r._field == \"status_code\")\n  |> filter(fn: (r) => r.core =~ /^${core:regex}$/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag:regex}(\\||$)/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag2:regex}(\\||$)/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag3:regex}(\\||$)/)\n  |> filter(fn: (r) => r.group =~ /^${group:regex}$/)\n  |> filter(fn: (r) => r.device =~ /^${device:regex}$/)\n  |> map(fn: (r) => ({r with down: if r._value == 2 then 1.0 else 0.0, counted: if r._value <= 2 then 1.0 else 0.0}))\n  |> group()\n  |> reduce(identity: {down: 0.0, counted: 0.0}, fn: (r, accumulator) => ({down: accumulator.down + r.down, counted: accumulator.counted + r.counted}))\n  |> filter(fn: (r) => r.counted > 0.0)\n  |> map(fn: (r) => ({_value: 100.0 * (1.0 - r.down / r.counted)}))"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "noValue": "keine Daten",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#e5484d",
+                "value": null
+              },
+              {
+                "color": "#f2c94c",
+                "value": 95
+              },
+              {
+                "color": "#35d763",
+                "value": 99
+              }
+            ]
+          },
+          "decimals": 1
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "center",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      }
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Verfügbarkeit 7 Tage",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "prtg-influx"
+      },
+      "gridPos": {
+        "x": 6,
+        "y": 0,
+        "w": 6,
+        "h": 4
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "prtg-influx"
+          },
+          "query": "from(bucket: v.defaultBucket)\n  |> range(start: -7d)\n  |> filter(fn: (r) => r._measurement == \"prtg_device\" and r._field == \"status_code\")\n  |> filter(fn: (r) => r.core =~ /^${core:regex}$/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag:regex}(\\||$)/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag2:regex}(\\||$)/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag3:regex}(\\||$)/)\n  |> filter(fn: (r) => r.group =~ /^${group:regex}$/)\n  |> filter(fn: (r) => r.device =~ /^${device:regex}$/)\n  |> map(fn: (r) => ({r with down: if r._value == 2 then 1.0 else 0.0, counted: if r._value <= 2 then 1.0 else 0.0}))\n  |> group()\n  |> reduce(identity: {down: 0.0, counted: 0.0}, fn: (r, accumulator) => ({down: accumulator.down + r.down, counted: accumulator.counted + r.counted}))\n  |> filter(fn: (r) => r.counted > 0.0)\n  |> map(fn: (r) => ({_value: 100.0 * (1.0 - r.down / r.counted)}))"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "noValue": "keine Daten",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#e5484d",
+                "value": null
+              },
+              {
+                "color": "#f2c94c",
+                "value": 95
+              },
+              {
+                "color": "#35d763",
+                "value": 99
+              }
+            ]
+          },
+          "decimals": 1
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "center",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      }
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "Verfügbarkeit 30 Tage",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "prtg-influx"
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 0,
+        "w": 6,
+        "h": 4
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "prtg-influx"
+          },
+          "query": "from(bucket: v.defaultBucket + \"_1h\")\n  |> range(start: -30d)\n  |> filter(fn: (r) => r._measurement == \"prtg_device_1h\")\n  |> filter(fn: (r) => r.core =~ /^${core:regex}$/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag:regex}(\\||$)/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag2:regex}(\\||$)/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag3:regex}(\\||$)/)\n  |> filter(fn: (r) => r.group =~ /^${group:regex}$/)\n  |> filter(fn: (r) => r.device =~ /^${device:regex}$/)\n  |> group(columns: [\"_field\"])\n  |> sum()\n  |> pivot(rowKey: [], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> filter(fn: (r) => r.counted_n > 0)\n  |> map(fn: (r) => ({_value: 100.0 * (1.0 - float(v: r.down_n) / float(v: r.counted_n))}))"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "noValue": "keine Daten",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#e5484d",
+                "value": null
+              },
+              {
+                "color": "#f2c94c",
+                "value": 95
+              },
+              {
+                "color": "#35d763",
+                "value": 99
+              }
+            ]
+          },
+          "decimals": 1
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "center",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      }
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "Verfügbarkeit 365 Tage",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "prtg-influx"
+      },
+      "gridPos": {
+        "x": 18,
+        "y": 0,
+        "w": 6,
+        "h": 4
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "prtg-influx"
+          },
+          "query": "from(bucket: v.defaultBucket + \"_1h\")\n  |> range(start: -365d)\n  |> filter(fn: (r) => r._measurement == \"prtg_device_1h\")\n  |> filter(fn: (r) => r.core =~ /^${core:regex}$/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag:regex}(\\||$)/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag2:regex}(\\||$)/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag3:regex}(\\||$)/)\n  |> filter(fn: (r) => r.group =~ /^${group:regex}$/)\n  |> filter(fn: (r) => r.device =~ /^${device:regex}$/)\n  |> group(columns: [\"_field\"])\n  |> sum()\n  |> pivot(rowKey: [], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> filter(fn: (r) => r.counted_n > 0)\n  |> map(fn: (r) => ({_value: 100.0 * (1.0 - float(v: r.down_n) / float(v: r.counted_n))}))"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "noValue": "keine Daten",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#e5484d",
+                "value": null
+              },
+              {
+                "color": "#f2c94c",
+                "value": 95
+              },
+              {
+                "color": "#35d763",
+                "value": 99
+              }
+            ]
+          },
+          "decimals": 1
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "center",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      }
+    },
+    {
+      "id": 5,
+      "type": "table",
+      "title": "Verfügbarkeit je Maschine und Gerät",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "prtg-influx"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 4,
+        "w": 24,
+        "h": 14
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "prtg-influx"
+          },
+          "query": "from(bucket: v.defaultBucket)\n  |> range(start: -365d)\n  |> filter(fn: (r) => r._measurement == \"prtg_device\" and r._field == \"status_code\")\n  |> filter(fn: (r) => r.core =~ /^${core:regex}$/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag:regex}(\\||$)/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag2:regex}(\\||$)/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag3:regex}(\\||$)/)\n  |> filter(fn: (r) => r.group =~ /^${group:regex}$/)\n  |> filter(fn: (r) => r.device =~ /^${device:regex}$/)\n  |> last()\n  |> group(columns: [\"core\", \"device_id\", \"_field\"])\n  |> top(n: 1, columns: [\"_time\"])\n  |> group()\n  |> map(fn: (r) => ({r with key: r.core + \"/\" + r.device_id, _value: if int(v: r._time) > int(v: now()) - 900000000000 then r._value else 4}))\n  |> keep(columns: [\"key\", \"device\", \"dns_name\", \"host\", \"group\", \"_value\"])\n  |> rename(columns: {_value: \"Status\"})"
+        },
+        {
+          "refId": "B",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "prtg-influx"
+          },
+          "query": "from(bucket: v.defaultBucket)\n  |> range(start: -24h)\n  |> filter(fn: (r) => r._measurement == \"prtg_device\" and r._field == \"status_code\")\n  |> filter(fn: (r) => r.core =~ /^${core:regex}$/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag:regex}(\\||$)/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag2:regex}(\\||$)/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag3:regex}(\\||$)/)\n  |> filter(fn: (r) => r.group =~ /^${group:regex}$/)\n  |> filter(fn: (r) => r.device =~ /^${device:regex}$/)\n  |> map(fn: (r) => ({r with down: if r._value == 2 then 1.0 else 0.0, counted: if r._value <= 2 then 1.0 else 0.0}))\n  |> group(columns: [\"core\", \"device_id\"])\n  |> reduce(identity: {down: 0.0, counted: 0.0}, fn: (r, accumulator) => ({down: accumulator.down + r.down, counted: accumulator.counted + r.counted}))\n  |> filter(fn: (r) => r.counted > 0.0)\n  |> map(fn: (r) => ({key: r.core + \"/\" + r.device_id, \"24 Stunden\": 100.0 * (1.0 - r.down / r.counted)}))"
+        },
+        {
+          "refId": "C",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "prtg-influx"
+          },
+          "query": "from(bucket: v.defaultBucket)\n  |> range(start: -7d)\n  |> filter(fn: (r) => r._measurement == \"prtg_device\" and r._field == \"status_code\")\n  |> filter(fn: (r) => r.core =~ /^${core:regex}$/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag:regex}(\\||$)/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag2:regex}(\\||$)/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag3:regex}(\\||$)/)\n  |> filter(fn: (r) => r.group =~ /^${group:regex}$/)\n  |> filter(fn: (r) => r.device =~ /^${device:regex}$/)\n  |> map(fn: (r) => ({r with down: if r._value == 2 then 1.0 else 0.0, counted: if r._value <= 2 then 1.0 else 0.0}))\n  |> group(columns: [\"core\", \"device_id\"])\n  |> reduce(identity: {down: 0.0, counted: 0.0}, fn: (r, accumulator) => ({down: accumulator.down + r.down, counted: accumulator.counted + r.counted}))\n  |> filter(fn: (r) => r.counted > 0.0)\n  |> map(fn: (r) => ({key: r.core + \"/\" + r.device_id, \"7 Tage\": 100.0 * (1.0 - r.down / r.counted)}))"
+        },
+        {
+          "refId": "D",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "prtg-influx"
+          },
+          "query": "from(bucket: v.defaultBucket + \"_1h\")\n  |> range(start: -30d)\n  |> filter(fn: (r) => r._measurement == \"prtg_device_1h\")\n  |> filter(fn: (r) => r.core =~ /^${core:regex}$/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag:regex}(\\||$)/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag2:regex}(\\||$)/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag3:regex}(\\||$)/)\n  |> filter(fn: (r) => r.group =~ /^${group:regex}$/)\n  |> filter(fn: (r) => r.device =~ /^${device:regex}$/)\n  |> group(columns: [\"core\", \"device_id\", \"_field\"])\n  |> sum()\n  |> pivot(rowKey: [\"core\", \"device_id\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> filter(fn: (r) => r.counted_n > 0)\n  |> map(fn: (r) => ({key: r.core + \"/\" + r.device_id, \"30 Tage\": 100.0 * (1.0 - float(v: r.down_n) / float(v: r.counted_n))}))"
+        },
+        {
+          "refId": "E",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "prtg-influx"
+          },
+          "query": "from(bucket: v.defaultBucket + \"_1h\")\n  |> range(start: -365d)\n  |> filter(fn: (r) => r._measurement == \"prtg_device_1h\")\n  |> filter(fn: (r) => r.core =~ /^${core:regex}$/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag:regex}(\\||$)/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag2:regex}(\\||$)/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag3:regex}(\\||$)/)\n  |> filter(fn: (r) => r.group =~ /^${group:regex}$/)\n  |> filter(fn: (r) => r.device =~ /^${device:regex}$/)\n  |> group(columns: [\"core\", \"device_id\", \"_field\"])\n  |> sum()\n  |> pivot(rowKey: [\"core\", \"device_id\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> filter(fn: (r) => r.counted_n > 0)\n  |> map(fn: (r) => ({key: r.core + \"/\" + r.device_id, \"365 Tage\": 100.0 * (1.0 - float(v: r.down_n) / float(v: r.counted_n))}))"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "joinByField",
+          "options": {
+            "byField": "key",
+            "mode": "outer"
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "key": true
+            },
+            "renameByName": {
+              "device": "Gerät",
+              "dns_name": "DNS-Name",
+              "host": "Host",
+              "group": "Gruppe"
+            },
+            "indexByName": {
+              "device": 0,
+              "dns_name": 1,
+              "host": 2,
+              "group": 3,
+              "Status": 4
+            }
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "noValue": "Keine Daten im gewählten Zeitraum",
+          "custom": {
+            "align": "auto"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Status"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "0": {
+                        "text": "OK",
+                        "color": "#35d763",
+                        "index": 0
+                      },
+                      "1": {
+                        "text": "Warnung",
+                        "color": "#f2c94c",
+                        "index": 1
+                      },
+                      "2": {
+                        "text": "Ausfall",
+                        "color": "#e5484d",
+                        "index": 2
+                      },
+                      "3": {
+                        "text": "Pausiert",
+                        "color": "#4aa8ff",
+                        "index": 3
+                      },
+                      "4": {
+                        "text": "Unbekannt",
+                        "color": "#8a9ba0",
+                        "index": 4
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background"
+                }
+              },
+              {
+                "id": "displayName",
+                "value": "Status"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "24 Stunden"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "#e5484d",
+                      "value": null
+                    },
+                    {
+                      "color": "#f2c94c",
+                      "value": 95
+                    },
+                    {
+                      "color": "#35d763",
+                      "value": 99
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "7 Tage"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "#e5484d",
+                      "value": null
+                    },
+                    {
+                      "color": "#f2c94c",
+                      "value": 95
+                    },
+                    {
+                      "color": "#35d763",
+                      "value": 99
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "30 Tage"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "#e5484d",
+                      "value": null
+                    },
+                    {
+                      "color": "#f2c94c",
+                      "value": 95
+                    },
+                    {
+                      "color": "#35d763",
+                      "value": 99
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "365 Tage"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "#e5484d",
+                      "value": null
+                    },
+                    {
+                      "color": "#f2c94c",
+                      "value": 95
+                    },
+                    {
+                      "color": "#35d763",
+                      "value": 99
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Gerät"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "Kanalverlauf öffnen",
+                    "url": "/d/prtg-kanalverlauf?var-device=${__value.text}&${__url_time_range}"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "sortBy": [
+          {
+            "displayName": "Gerät",
+            "desc": false
+          }
+        ]
+      }
+    },
+    {
+      "id": 6,
+      "type": "text",
+      "title": "Hinweis zur Berechnung",
+      "gridPos": {
+        "x": 0,
+        "y": 18,
+        "w": 24,
+        "h": 3
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "Die Verfügbarkeit wird aus den Abrufen im Takt von 60 Sekunden berechnet (Status OK, Warnung und Ausfall zählen; pausierte und unbekannte Zeiten zählen nicht). Sie ist eine **Näherung** und kann von der Berechnung in PRTG abweichen. Die Zeiträume 30 und 365 Tage lesen die Stundenverdichtung und füllen sich mit jeder vollen Stunde."
+      }
+    },
+    {
+      "id": 7,
+      "type": "text",
+      "title": "Hinweis zur Anzeige",
+      "gridPos": {
+        "x": 4,
+        "y": 21,
+        "w": 16,
+        "h": 4
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "**Datenstand:** Alter des letzten Abrufs der PRTG-Daten, gelb nach 3, rot nach 10 Abrufintervallen. Die Ansicht aktualisiert sich alle 5 Minuten. Zeigt ein Feld einen Fehler oder bleibt es leer, ist die Datenbank gerade nicht erreichbar oder der Collector liefert nichts; die Felder füllen sich nach der Wiederkehr von selbst.\n\n**Auswahl:** Die Felder Core, Gruppe, Gerät und Tag wirken zusammen als „und“. Mehrere Werte innerhalb eines Feldes gelten als „oder“. „All“ filtert nicht. Die Felder Tag, Tag 2 und Tag 3 gelten ebenfalls als „und“: ein Objekt muss zu jedem Feld mit Auswahl passen (Tag `web`, Tag 2 `db`: nur Objekte mit beiden Tags)."
+      }
+    },
+    {
+      "id": 8,
+      "type": "stat",
+      "title": "Datenstand (Alter des letzten Abrufs)",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "prtg-influx"
+      },
+      "gridPos": {
+        "x": 20,
+        "y": 21,
+        "w": 4,
+        "h": 4
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "prtg-influx"
+          },
+          "query": "from(bucket: v.defaultBucket)\n  |> range(start: -1d)\n  |> filter(fn: (r) => r._measurement == \"collector_run\" and r._field == \"errors\")\n  |> filter(fn: (r) => r.core =~ /^${core:regex}$/)\n  |> last()\n  |> group()\n  |> sort(columns: [\"_time\"], desc: true)\n  |> limit(n: 1)\n  |> map(fn: (r) => ({_time: r._time, _value: float(v: int(v: now()) - int(v: r._time)) / 1000000000.0}))"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "dtdurations",
+          "noValue": "kein Abruf",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#35d763",
+                "value": null
+              },
+              {
+                "color": "#f2c94c",
+                "value": 180
+              },
+              {
+                "color": "#e5484d",
+                "value": 600
+              }
+            ]
+          },
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "center",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {
+          "titleSize": 11,
+          "valueSize": 18
+        }
+      }
+    }
+  ]
+}

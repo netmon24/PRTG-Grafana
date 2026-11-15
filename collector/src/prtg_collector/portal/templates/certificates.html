@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Zertifikate{% endblock %}
+{% block content %}
+<h1>Verschlüsselung (TLS) für Grafana, InfluxDB und das Portal</h1>
+<p>Je Dienst legen Sie fest, ob er ungesichert (http), mit einem eigenen Zertifikat oder mit einem Zertifikat von Let's Encrypt arbeitet. Das Umschalten startet den Dienst neu, er ist dann kurz nicht erreichbar.</p>
+{% if uploaded %}<p class="meldung ok" role="status">Zertifikat für {{ uploaded }} gespeichert (gültig bis {{ info.not_after.strftime('%d.%m.%Y') }}). Die Betriebsart ist jetzt „eigenes Zertifikat“, der Dienst startet neu.</p>{% endif %}
+{% if info_text %}<p class="meldung ok" role="status">{{ info_text }}</p>{% endif %}
+{% if error %}<p class="meldung fehler" role="alert">{{ error }}</p>{% endif %}
+<p class="meldung" style="border-color:#8aa">Lässt sich ein Dienst nicht von selbst neu starten, hilft auf dem Server: <code>{{ restart }}</code>. Danach <code>{{ apply }}</code>.</p>
+{% if acme_available %}
+<section class="karte">
+  <h2>Let's Encrypt</h2>
+  <p>Let's Encrypt stellt kostenlose Zertifikate aus, wenn Sie keine eigene Zertifizierungsstelle haben. Voraussetzungen: Der Name zeigt auf diesen Server, und <strong>Port 80</strong> des Servers ist aus dem Internet erreichbar. Zertifikate laufen nach 90 Tagen ab und werden automatisch erneuert.</p>
+  <form method="post" action="/certificates/acme/settings">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <label for="acme-email">E-Mail-Adresse (für Hinweise von Let's Encrypt)</label>
+    <input id="acme-email" name="email" type="email" value="{{ prefs.email }}" required>
+    <p><input id="acme-terms" name="terms" type="checkbox" value="1" {% if prefs.terms_accepted %}checked{% endif %}>
+    <label for="acme-terms" style="display:inline">Ich stimme den Nutzungsbedingungen von Let's Encrypt zu (<a href="https://letsencrypt.org/repository/" rel="noopener">letsencrypt.org/repository</a>).</label></p>
+    <p><input id="acme-staging" name="staging" type="checkbox" value="1" {% if prefs.staging %}checked{% endif %}>
+    <label for="acme-staging" style="display:inline">Testumgebung verwenden. Browser vertrauen den Testzertifikaten nicht. Zum Üben gedacht, für das echte Zertifikat entfernen.</label></p>
+    <div class="zeile"><button type="submit">Angaben speichern</button></div>
+  </form>
+</section>
+{% endif %}
+{% for kind, label in kinds.items() %}
+{% set s = settings[kind] %}
+<section class="karte">
+  <h2>{{ label }}</h2>
+  <p>Betriebsart: <strong>{% if s.mode == 'http' %}ungesichert (http){% elif s.mode == 'own' %}eigenes Zertifikat (https){% else %}Let's Encrypt (https){% endif %}</strong>{% if s.not_after %}, Zertifikat gültig bis {{ s.not_after[:10] }}{% endif %}</p>
+  {% if s.last_error %}<p class="meldung fehler" role="alert">Letzter Versuch fehlgeschlagen: {{ s.last_error }}</p>{% endif %}
+  <form method="post" action="/certificates/{{ kind }}/mode">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <label for="mode-{{ kind }}">Betriebsart</label>
+    <select id="mode-{{ kind }}" name="mode">
+      <option value="http" {% if s.mode == 'http' %}selected{% endif %}>ungesichert (http)</option>
+      <option value="own" {% if s.mode == 'own' %}selected{% endif %}>https mit eigenem Zertifikat</option>
+      <option value="acme" {% if s.mode == 'acme' %}selected{% endif %}>https mit Let's Encrypt</option>
+    </select>
+    <div class="zeile"><button type="submit">Betriebsart speichern</button></div>
+  </form>
+  {% if acme_available %}
+  <form method="post" action="/certificates/{{ kind }}/acme">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <h3>Zertifikat von Let's Encrypt besorgen</h3>
+    <label for="domain-{{ kind }}">Name dieses Dienstes im Internet (zum Beispiel {{ kind }}.firma.de)</label>
+    <input id="domain-{{ kind }}" name="domain" value="{{ s.domain or '' }}" required>
+    <div class="zeile"><button type="submit">Zertifikat jetzt besorgen</button></div>
+    <p>Das kann bis zu einer Minute dauern.</p>
+  </form>
+  {% endif %}
+  <form method="post" action="/certificates/{{ kind }}">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <h3>Eigenes Zertifikat hochladen</h3>
+    <label for="cert-{{ kind }}">Zertifikat (PEM)</label>
+    <textarea id="cert-{{ kind }}" name="cert_pem" required></textarea>
+    <label for="key-{{ kind }}">Privater Schlüssel (PEM, ohne Passwort)</label>
+    <textarea id="key-{{ kind }}" name="key_pem" required></textarea>
+    <div class="zeile"><button type="submit">Für {{ label }} speichern und verwenden</button></div>
+  </form>
+</section>
+{% endfor %}
+{% endblock %}

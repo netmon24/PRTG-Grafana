@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Portal{% endblock %} – netmon24 PRTG-Grafana</title>
+  <link rel="icon" type="image/svg+xml" href="/static/netmon24-mark.svg">
+  <link rel="stylesheet" href="/static/portal.css">
+</head>
+<body>
+<header>
+  <div class="marke"><img class="logo" src="/static/netmon24-logo-white.svg" alt="netmon24"> <span>PRTG-Grafana</span></div>
+  {% if logged_in %}
+  <nav aria-label="Hauptmenü">
+    <a href="/">Übersicht</a>
+    <a href="/certificates">Zertifikate</a>
+    <a href="/users">Benutzer</a>
+    <a href="/settings">Einstellungen</a>
+  </nav>
+  <form method="post" action="/logout"><input type="hidden" name="csrf" value="{{ csrf }}"><button class="zweit" type="submit">Abmelden</button></form>
+  {% endif %}
+</header>
+<main>
+{% if error %}<p class="meldung fehler" role="alert">{{ error }}</p>{% endif %}
+{% if info and info is string %}<p class="meldung ok" role="status">{{ info }}</p>{% endif %}
+{% block content %}{% endblock %}
+</main>
+</body>
+</html>

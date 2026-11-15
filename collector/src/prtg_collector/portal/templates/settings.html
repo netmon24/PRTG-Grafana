@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Einstellungen{% endblock %}
+{% block content %}
+<h1>Einstellungen</h1>
+<form class="karte" method="post" action="/settings/password">
+  <input type="hidden" name="csrf" value="{{ csrf }}">
+  <h2>Administratorpasswort ändern</h2>
+  <label for="old">Aktuelles Passwort</label>
+  <input id="old" name="old" type="password" autocomplete="current-password" required>
+  <label for="new">Neues Passwort (mindestens 12 Zeichen)</label>
+  <input id="new" name="new" type="password" autocomplete="new-password" minlength="12" required>
+  <div class="zeile"><button type="submit">Passwort ändern</button></div>
+</form>
+{% endblock %}

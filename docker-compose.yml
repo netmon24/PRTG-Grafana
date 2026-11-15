@@ -1,0 +1,196 @@
+# netmon24 PRTG-Grafana: InfluxDB, Grafana, Collector und Administrationsportal.
+# Start: .env aus .env.example anlegen, dann `docker compose up -d` (zieht die fertigen Images).
+# Aus dem Quelltext bauen (Entwicklung): `docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build`.
+# Anleitung für Server und Portainer: docs/ausrollen.md
+# Einrichtung neuer Kunden: `docker compose run --rm setup`.
+
+x-app: &app
+  image: ghcr.io/netmon24/prtg-grafana:${PRTG_GRAFANA_VERSION:-0.3.3}
+  restart: unless-stopped
+
+services:
+  influxdb:
+    image: influxdb:2.7
+    restart: unless-stopped
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: admin
+      DOCKER_INFLUXDB_INIT_PASSWORD: ${INFLUX_ADMIN_PASSWORD:?INFLUX_ADMIN_PASSWORD fehlt in der .env}
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: ${INFLUX_ADMIN_TOKEN:?INFLUX_ADMIN_TOKEN fehlt in der .env}
+      DOCKER_INFLUXDB_INIT_ORG: ${INFLUX_ORG:-netmon24}
+      DOCKER_INFLUXDB_INIT_BUCKET: prtg_default
+      DOCKER_INFLUXDB_INIT_RETENTION: ${INFLUX_RETENTION_DAYS:-365}d
+    # TLS gilt, wenn im Portal die Betriebsart „eigenes Zertifikat“ oder „Let's Encrypt“ gewählt ist (Marker
+    # im Volume tls-certs). Ändert sich Marker oder Zertifikat, beendet sich der Dienst und Docker startet ihn neu.
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        state() { cat /certs/influxdb.enabled /certs/influxdb.crt 2>/dev/null | cksum; }
+        if [ -f /certs/influxdb.enabled ] && [ -s /certs/influxdb.crt ] && [ -s /certs/influxdb.key ]; then
+          mkdir -p /run/influxdb-tls
+          cp /certs/influxdb.crt /certs/influxdb.key /run/influxdb-tls/
+          chown influxdb /run/influxdb-tls/influxdb.crt /run/influxdb-tls/influxdb.key
+          chmod 600 /run/influxdb-tls/influxdb.key
+          export INFLUXD_TLS_CERT=/run/influxdb-tls/influxdb.crt INFLUXD_TLS_KEY=/run/influxdb-tls/influxdb.key
+        fi
+        before=$$(state)
+        stopped_by_us=0
+        /entrypoint.sh influxd &
+        pid=$$!
+        trap 'kill $$pid 2>/dev/null' TERM INT
+        while kill -0 $$pid 2>/dev/null; do
+          sleep 30 &
+          wait $$!
+          if [ "$$(state)" != "$$before" ]; then
+            echo "TLS-Einstellung geändert, Dienst startet neu."
+            stopped_by_us=1
+            kill $$pid 2>/dev/null
+            break
+          fi
+        done
+        wait $$pid
+        rc=$$?
+        [ $$stopped_by_us = 1 ] && exit 0
+        exit $$rc
+    ports:
+      - "${INFLUX_BIND:-127.0.0.1}:${INFLUX_PORT:-8086}:8086"
+    volumes:
+      - influx-data:/var/lib/influxdb2
+      - tls-certs:/certs:ro
+    healthcheck:
+      test: ["CMD-SHELL", "influx ping || influx ping --host https://localhost:8086 --skip-verify"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  grafana:
+    image: grafana/grafana-oss:12.4.3
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?GRAFANA_ADMIN_PASSWORD fehlt in der .env}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_USERS_DEFAULT_THEME: dark
+      GF_ANALYTICS_REPORTING_ENABLED: "false"
+      GF_ANALYTICS_CHECK_FOR_UPDATES: "false"
+    # Wie bei InfluxDB: TLS nach Betriebsart im Portal, Neustart bei Änderung.
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        state() { cat /certs/grafana.enabled /certs/grafana.crt 2>/dev/null | cksum; }
+        if [ -f /certs/grafana.enabled ] && [ -s /certs/grafana.crt ] && [ -s /certs/grafana.key ]; then
+          export GF_SERVER_PROTOCOL=https GF_SERVER_CERT_FILE=/certs/grafana.crt GF_SERVER_CERT_KEY=/certs/grafana.key
+        fi
+        before=$$(state)
+        stopped_by_us=0
+        /run.sh &
+        pid=$$!
+        trap 'kill $$pid 2>/dev/null' TERM INT
+        while kill -0 $$pid 2>/dev/null; do
+          sleep 30 &
+          wait $$!
+          if [ "$$(state)" != "$$before" ]; then
+            echo "TLS-Einstellung geändert, Dienst startet neu."
+            stopped_by_us=1
+            kill $$pid 2>/dev/null
+            break
+          fi
+        done
+        wait $$pid
+        rc=$$?
+        [ $$stopped_by_us = 1 ] && exit 0
+        exit $$rc
+    ports:
+      - "${GRAFANA_BIND:-0.0.0.0}:${GRAFANA_PORT:-3000}:3000"
+    group_add: ["${TLS_KEY_GID:-2000}"]  # gemeinsame Gruppe zum Lesen des TLS-Schlüssels
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - tls-certs:/certs:ro
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:3000/api/health || wget -q --spider --no-check-certificate https://localhost:3000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # Einmal-Dienst: legt Buckets, Tokens, Grafana-Organisationen, Datenquellen und Dashboards an.
+  setup:
+    <<: *app
+    restart: "no"
+    profiles: ["tools"]
+    command: ["python", "-m", "prtg_collector.setup_tenants"]
+    environment: &setup-env
+      INFLUX_INTERNAL_URL: ${INFLUX_INTERNAL_URL:-}
+      INTERNAL_TLS_VERIFY: ${INTERNAL_TLS_VERIFY:-}
+      CERTS_DIR: /certs
+      INFLUX_ORG: ${INFLUX_ORG:-netmon24}
+      INFLUX_ADMIN_TOKEN: ${INFLUX_ADMIN_TOKEN}
+      INFLUX_RETENTION_DAYS: ${INFLUX_RETENTION_DAYS:-365}
+      GRAFANA_INTERNAL_URL: ${GRAFANA_INTERNAL_URL:-}
+      GRAFANA_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
+      PORTAL_DATA_DIR: /data
+      PORTAL_SECRET_KEY: ${PORTAL_SECRET_KEY:?PORTAL_SECRET_KEY fehlt in der .env}
+      CORES_FILE: /config/cores.yaml
+      TOKEN_DIR: /tokens
+      DASHBOARD_DIR: /app/dashboards
+    volumes:
+      - portal-data:/data
+      - collector-token:/tokens
+      - tls-certs:/certs:ro
+    depends_on:
+      influxdb: {condition: service_healthy}
+      grafana: {condition: service_healthy}
+
+  collector:
+    <<: *app
+    command: ["python", "-m", "prtg_collector"]
+    environment:
+      INFLUX_INTERNAL_URL: ${INFLUX_INTERNAL_URL:-}
+      INTERNAL_TLS_VERIFY: ${INTERNAL_TLS_VERIFY:-}
+      CERTS_DIR: /certs
+      INFLUX_ORG: ${INFLUX_ORG:-netmon24}
+      INFLUX_TOKEN_FILE: /tokens/collector.token
+      PORTAL_DATA_DIR: /data
+      PORTAL_SECRET_KEY: ${PORTAL_SECRET_KEY:?PORTAL_SECRET_KEY fehlt in der .env}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    volumes:
+      - portal-data:/data:ro
+      - collector-token:/tokens:ro
+      - tls-certs:/certs:ro
+    depends_on:
+      influxdb: {condition: service_healthy}
+
+  portal:
+    <<: *app
+    mem_limit: 512m  # begrenzt Speicherwachstum durch Fehlanmeldungen
+    command: ["python", "-m", "prtg_collector.portal"]
+    environment:
+      <<: *setup-env
+      PORTAL_ADMIN_USER: ${PORTAL_ADMIN_USER:-admin}
+      PORTAL_TRUST_PROXY: ${PORTAL_TRUST_PROXY:-false}
+      PORTAL_ADMIN_PASSWORD: ${PORTAL_ADMIN_PASSWORD:?PORTAL_ADMIN_PASSWORD fehlt in der .env}
+      CERTS_DIR: /certs
+      ACME_HTTP_INTERNAL_PORT: "8081"
+      ACME_DIRECTORY_URL: ${ACME_DIRECTORY_URL:-}
+      ACME_VERIFY_TLS: ${ACME_VERIFY_TLS:-true}
+      TLS_KEY_GID: ${TLS_KEY_GID:-2000}
+    group_add: ["${TLS_KEY_GID:-2000}"]
+    ports:
+      - "${PORTAL_BIND:-127.0.0.1}:${PORTAL_PORT:-8088}:8080"
+      # Antwortserver für die Prüfung von Let's Encrypt (HTTP-01): Port 80 des Servers muss aus dem Internet erreichbar sein
+      - "${ACME_HTTP_BIND:-0.0.0.0}:${ACME_HTTP_PORT:-80}:8081"
+    volumes:
+      - portal-data:/data
+      - collector-token:/tokens
+      - tls-certs:/certs
+    depends_on:
+      influxdb: {condition: service_healthy}
+      grafana: {condition: service_healthy}
+
+volumes:
+  influx-data:
+  grafana-data:
+  portal-data:
+  collector-token:
+  tls-certs:
