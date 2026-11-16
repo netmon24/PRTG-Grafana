@@ -8,6 +8,12 @@ updates:
     directory: /collector
     schedule:
       interval: weekly
+    ignore:
+      # Python bleibt auf 3.12, wie in pyproject.toml; ein Wechsel ist eine eigene Entscheidung
+      - dependency-name: python
+        update-types:
+          - version-update:semver-minor
+          - version-update:semver-major
   - package-ecosystem: uv
     directory: /collector
     schedule:
