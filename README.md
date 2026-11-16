@@ -49,6 +49,14 @@ Der Wert `PORTAL_SECRET_KEY` schützt die im Portal gespeicherten API-Keys. Noti
 
 ## Die Dashboards
 
+![Gesamtübersicht mit Demodaten](docs/bilder/dashboard-gesamtuebersicht.png)
+
+*Gesamtübersicht mit drei Demo-Cores. Alle Namen und Werte sind erfunden.*
+
+![Verfügbarkeit mit Demodaten](docs/bilder/dashboard-verfuegbarkeit.png)
+
+*Verfügbarkeit je Gerät, ebenfalls mit Demodaten.*
+
 1. **Gesamtübersicht:** Wie steht es um alle Sensoren, was sind die offenen Probleme.
 2. **Verfügbarkeit:** Je Gerät Status und Verfügbarkeit in Prozent für 24 Stunden, 7, 30 und 365 Tage.
 3. **Tag-Ansicht:** Die Vorlage für eigene Ansichten. Anleitung: [docs/tag-anleitung.md](docs/tag-anleitung.md).
