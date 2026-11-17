@@ -9,3 +9,6 @@ __pycache__/
 spike-raw*/
 .superpowers/
 .DS_Store
+
+# Browser-Werkzeug (Screenshots, Seitenabbilder)
+.playwright-mcp/

@@ -212,6 +212,22 @@
   ],
   "panels": [
     {
+      "id": 13,
+      "type": "text",
+      "title": "",
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 24,
+        "h": 3
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "<div style=\"text-align:center;font-family:Montserrat,Roboto,sans-serif\"><div style=\"font-size:38px;font-weight:600;line-height:1.2\">Webseiten-Monitoring</div>\n\n<div style=\"font-size:16px;opacity:.8\">Status, Antwortcode und Ladezeit der überwachten Webseiten.</div></div>"
+      },
+      "transparent": true
+    },
+    {
       "id": 1,
       "type": "stat",
       "title": "Webseiten gesamt",
@@ -221,7 +237,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 0,
+        "y": 3,
         "w": 4,
         "h": 4
       },
@@ -256,10 +272,14 @@
         "overrides": []
       },
       "options": {
-        "colorMode": "background",
+        "colorMode": "background_solid",
         "graphMode": "none",
         "textMode": "value",
         "justifyMode": "center",
+        "text": {
+          "titleSize": 14,
+          "valueSize": 48
+        },
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -279,7 +299,7 @@
       },
       "gridPos": {
         "x": 4,
-        "y": 0,
+        "y": 3,
         "w": 4,
         "h": 4
       },
@@ -314,10 +334,14 @@
         "overrides": []
       },
       "options": {
-        "colorMode": "background",
+        "colorMode": "background_solid",
         "graphMode": "none",
         "textMode": "value",
         "justifyMode": "center",
+        "text": {
+          "titleSize": 14,
+          "valueSize": 48
+        },
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -337,7 +361,7 @@
       },
       "gridPos": {
         "x": 8,
-        "y": 0,
+        "y": 3,
         "w": 4,
         "h": 4
       },
@@ -376,10 +400,14 @@
         "overrides": []
       },
       "options": {
-        "colorMode": "background",
+        "colorMode": "background_solid",
         "graphMode": "none",
         "textMode": "value",
         "justifyMode": "center",
+        "text": {
+          "titleSize": 14,
+          "valueSize": 48
+        },
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -399,7 +427,7 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 0,
+        "y": 3,
         "w": 4,
         "h": 4
       },
@@ -438,10 +466,14 @@
         "overrides": []
       },
       "options": {
-        "colorMode": "background",
+        "colorMode": "background_solid",
         "graphMode": "none",
         "textMode": "value",
         "justifyMode": "center",
+        "text": {
+          "titleSize": 14,
+          "valueSize": 48
+        },
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -461,7 +493,7 @@
       },
       "gridPos": {
         "x": 16,
-        "y": 0,
+        "y": 3,
         "w": 8,
         "h": 4
       },
@@ -504,10 +536,14 @@
         "overrides": []
       },
       "options": {
-        "colorMode": "background",
+        "colorMode": "background_solid",
         "graphMode": "none",
         "textMode": "value",
         "justifyMode": "center",
+        "text": {
+          "titleSize": 14,
+          "valueSize": 48
+        },
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -527,7 +563,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 4,
+        "y": 7,
         "w": 12,
         "h": 9
       },
@@ -599,7 +635,7 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 4,
+        "y": 7,
         "w": 12,
         "h": 9
       },
@@ -663,7 +699,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 13,
+        "y": 16,
         "w": 24,
         "h": 10
       },
@@ -795,12 +831,175 @@
               {
                 "id": "custom.cellOptions",
                 "value": {
-                  "type": "color-background"
+                  "type": "color-background",
+                  "mode": "basic"
                 }
               },
               {
                 "id": "displayName",
                 "value": "Status"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "_time"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Zeit"
+              },
+              {
+                "id": "unit",
+                "value": "time: DD.MM.YYYY HH:mm:ss"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "core"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Core"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "device"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Gerät"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "dns_name"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "DNS-Name"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "message"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Meldung"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "sensor"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Sensor"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "sensor_type"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Sensortyp"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "errors"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Fehler"
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "#35d763",
+                      "value": null
+                    },
+                    {
+                      "color": "#e5484d",
+                      "value": 1
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "duration_ms"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Dauer"
+              },
+              {
+                "id": "unit",
+                "value": "ms"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "objects_read"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Objekte gelesen"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "last_error"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Letzter Fehler"
               }
             ]
           },
@@ -895,7 +1094,7 @@
       },
       "options": {
         "showHeader": true,
-        "cellHeight": "sm",
+        "cellHeight": "md",
         "sortBy": []
       }
     },
@@ -905,7 +1104,7 @@
       "title": "Hinweis",
       "gridPos": {
         "x": 0,
-        "y": 23,
+        "y": 26,
         "w": 24,
         "h": 3
       },
@@ -920,7 +1119,7 @@
       "title": "Hinweis zur Anzeige",
       "gridPos": {
         "x": 4,
-        "y": 26,
+        "y": 29,
         "w": 16,
         "h": 4
       },
@@ -939,7 +1138,7 @@
       },
       "gridPos": {
         "x": 20,
-        "y": 26,
+        "y": 29,
         "w": 4,
         "h": 4
       },
@@ -982,20 +1181,20 @@
         "overrides": []
       },
       "options": {
-        "colorMode": "background",
+        "colorMode": "background_solid",
         "graphMode": "none",
         "textMode": "value",
         "justifyMode": "center",
+        "text": {
+          "titleSize": 11,
+          "valueSize": 18
+        },
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
           ],
           "fields": "",
           "values": false
-        },
-        "text": {
-          "titleSize": 11,
-          "valueSize": 18
         }
       }
     }

@@ -179,7 +179,7 @@ def dashboard() -> dict[str, Any]:
         },
         "options": {
             "orientation": "horizontal",
-            "displayMode": "gradient",
+            "displayMode": "basic",
             "valueMode": "color",
             "showUnfilled": True,
             "namePlacement": "left",
@@ -245,7 +245,7 @@ def dashboard() -> dict[str, Any]:
                 "properties": [
                     {"id": "unit", "value": "percent"},
                     {"id": "decimals", "value": 1},
-                    {"id": "custom.cellOptions", "value": {"type": "color-background"}},
+                    {"id": "custom.cellOptions", "value": {"type": "color-background", "mode": "basic"}},
                     {"id": "color", "value": {"mode": "thresholds"}},
                     {
                         "id": "thresholds",

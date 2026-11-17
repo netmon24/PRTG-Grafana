@@ -11,7 +11,7 @@ def test_geraetestatus_dashboard(load_script):
     assert d["title"] == "Gerätestatus"
     names = [v["name"] for v in d["templating"]["list"]]
     assert names == ["core", "group", "device", "tag", "tag2", "tag3", "stype", "status"]
-    assert len(d["panels"]) <= 12
+    assert len(d["panels"]) - 1 <= 12  # ohne die Titelzeile
     ids = [p["id"] for p in d["panels"]]
     assert len(ids) == len(set(ids))
 

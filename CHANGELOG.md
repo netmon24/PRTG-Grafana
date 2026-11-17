@@ -2,6 +2,13 @@
 
 Hier steht, was sich in jeder Version geändert hat. Die jeweils neueste Version steht oben.
 
+## 0.3.4 (17.11.2026)
+- Alle 13 Dashboards beginnen mit einer großen Überschrift und einem Satz, der sagt, wofür das Dashboard da ist. Die Kennzahlen sind größer.
+- Tabellen haben deutsche Spaltenköpfe statt der Feldnamen aus der Abfrage (zum Beispiel „Gerät“, „Meldung“, „Dauer“, „Objekte gelesen“). Die Zeit steht als `17.11.2026 15:38:24`. In „Collector-Gesundheit je Core“ ist die Fehlerzahl ab 1 rot.
+- Neu in Dashboard 1: „Zehn Geräte mit den meisten Sensorproblemen“. Neu in Dashboard 2: „Zehn Geräte mit der schlechtesten Verfügbarkeit (24 Stunden)“.
+- Kacheln, Balken und Statuszellen sind einfarbig statt mit Farbverlauf.
+- Aktualisiert: FastAPI 0.162.7, die Actions für den Bau und die Veröffentlichung des Images (Docker-Actions 4.x und 7.x, `actions/checkout` 7, `setup-uv` 10) und die Entwicklungswerkzeuge. Python bleibt auf 3.12.
+
 ## 0.3.3 (15.11.2026)
 - In allen Dashboards mit Tag-Auswahl gibt es jetzt drei Tag-Felder (Tag, Tag 2, Tag 3). Mehrere Werte in einem Feld gelten als „oder“, verschiedene Felder als „und“. So lassen sich Objekte finden, die mehrere Tags gleichzeitig tragen.
 - Das Feld „Hinweis zur Anzeige“ erklärt in jedem Dashboard, wie die Auswahlfelder dieses Dashboards zusammenwirken.

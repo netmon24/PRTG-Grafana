@@ -5,7 +5,7 @@
 # Einrichtung neuer Kunden: `docker compose run --rm setup`.
 
 x-app: &app
-  image: ghcr.io/netmon24/prtg-grafana:${PRTG_GRAFANA_VERSION:-0.3.3}
+  image: ghcr.io/netmon24/prtg-grafana:${PRTG_GRAFANA_VERSION:-0.3.4}
   restart: unless-stopped
 
 services:

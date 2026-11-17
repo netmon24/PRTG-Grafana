@@ -35,9 +35,9 @@ def test_variable_order_is_fixed_in_every_dashboard(tmp_path):
         assert names[0] == "core"
 
 
-def test_panel_count_max_12_and_unique_ids(tmp_path):
+def test_panel_count_max_12_besides_the_title_banner_and_unique_ids(tmp_path):
     for d in _built(tmp_path).values():
-        assert len(d["panels"]) <= 12
+        assert len(d["panels"]) - 1 <= 12  # die Titelzeile zählt nicht mit
         ids = [p["id"] for p in d["panels"]]
         assert len(ids) == len(set(ids))
 
@@ -91,7 +91,7 @@ def test_event_dashboard_is_derived_from_status_changes_and_says_so(tmp_path):
     d = _built(tmp_path)["05-ereignisse.json"]
     queries = " ".join(t["query"] for p in d["panels"] for t in p.get("targets", []))
     assert "prtg_sensor_status" in queries and "difference(" in queries
-    note = next(p for p in d["panels"] if p["type"] == "text")
+    note = next(p for p in d["panels"][1:] if p["type"] == "text")  # [0] ist die Titelzeile
     assert "abgeleitet" in note["options"]["content"]
 
 
@@ -343,3 +343,115 @@ def test_three_tag_fields_combine_with_and_in_every_tag_dashboard(tmp_path):
         ):  # jedes Feld ist ein eigener Filter, also „und“ zwischen den Feldern
             for var in ("tag", "tag2", "tag3"):
                 assert "${" + var + ":regex}" in queries, (name, var)
+
+
+# --- Optik (0.3.4) ---
+
+
+def _banner(dash):
+    return dash["panels"][0]
+
+
+def test_every_dashboard_starts_with_a_title_banner_and_everything_else_sits_below(tmp_path):
+    for name, dash in _built(tmp_path).items():
+        banner = _banner(dash)
+        assert banner["type"] == "text" and banner["title"] == "", name
+        assert banner["gridPos"] == {"x": 0, "y": 0, "w": 24, "h": 3}, name
+        assert banner["transparent"] is True, name
+        content = banner["options"]["content"]
+        # Titel ohne die Nummer vor dem Namen, dazu ein erklärender Satz
+        assert dash["title"].lstrip("0123456789 ").split(" (")[0] in content, name
+        assert content.count("\n") >= 1, name
+        assert all(p["gridPos"]["y"] >= 3 for p in dash["panels"][1:]), name
+
+
+def test_tiles_show_large_numbers_except_the_small_datenstand_field(tmp_path):
+    for name, dash in _built(tmp_path).items():
+        for p in dash["panels"]:
+            if p["type"] != "stat" or p["title"].startswith("Datenstand"):
+                continue
+            if p["options"]["reduceOptions"]["values"]:
+                continue  # eine Kachel je Gruppe: viele kleine, Schrift bewusst kleiner
+            size = p["options"]["text"]
+            assert size["valueSize"] >= 44 and size["titleSize"] >= 14, (name, p["title"])
+
+
+def test_every_table_names_its_columns_in_german(tmp_path):
+    expected = {
+        "_time": "Zeit",
+        "core": "Core",
+        "device": "Gerät",
+        "dns_name": "DNS-Name",
+        "message": "Meldung",
+        "sensor": "Sensor",
+        "sensor_type": "Sensortyp",
+        "errors": "Fehler",
+        "duration_ms": "Dauer",
+        "objects_read": "Objekte gelesen",
+        "last_error": "Letzter Fehler",
+    }
+    for name, dash in _built(tmp_path).items():
+        for p in (p for p in dash["panels"] if p["type"] == "table"):
+            names = {}
+            for o in p["fieldConfig"]["overrides"]:
+                for prop in o["properties"]:
+                    if prop["id"] == "displayName":
+                        # das allgemeine Override steht vor den Sonderfällen der Dashboards
+                        names.setdefault(o["matcher"]["options"], prop["value"])
+            for raw, german in expected.items():
+                assert names.get(raw) == german, (name, p["title"], raw)
+            assert p["options"]["cellHeight"] == "md", (name, p["title"])
+
+
+def test_collector_table_shows_readable_time_seconds_and_red_errors(tmp_path):
+    panel = next(
+        p
+        for p in _built(tmp_path)["01-gesamtuebersicht.json"]["panels"]
+        if p["title"] == "Collector-Gesundheit je Core"
+    )
+    props = {
+        o["matcher"]["options"]: {x["id"]: x["value"] for x in o["properties"]}
+        for o in panel["fieldConfig"]["overrides"]
+    }
+    assert props["_time"]["unit"] == "time: DD.MM.YYYY HH:mm:ss"
+    assert props["duration_ms"]["unit"] == "ms"
+    errors = props["errors"]["thresholds"]["steps"]
+    assert errors[-1] == {"color": build_dashboards.RED, "value": 1}
+
+
+def test_bar_gauges_are_flat_colours_by_threshold_never_a_gradient(tmp_path):
+    seen = 0
+    for name, dash in _built(tmp_path).items():
+        for p in (p for p in dash["panels"] if p["type"] == "bargauge"):
+            seen += 1
+            assert p["options"]["displayMode"] == "basic", (name, p["title"])
+    assert seen >= 4  # 9 und 11 vorhanden, dazu die zwei neuen Top-10-Felder
+
+
+def test_dashboards_1_and_2_have_a_top_10_bar_gauge(tmp_path):
+    built = _built(tmp_path)
+    for file, title in (
+        ("01-gesamtuebersicht.json", "Zehn Geräte mit den meisten Sensorproblemen"),
+        ("02-verfuegbarkeit.json", "Zehn Geräte mit der schlechtesten Verfügbarkeit (24 Stunden)"),
+    ):
+        panel = next(p for p in built[file]["panels"] if p["title"] == title)
+        assert panel["type"] == "bargauge"
+        query = panel["targets"][0]["query"]
+        assert "limit(n: 10)" in query and "prtg_device" in query
+        assert panel["options"]["reduceOptions"]["values"] is True
+
+
+def test_tiles_are_flat_colours_never_a_gradient(tmp_path):
+    for name, dash in _built(tmp_path).items():
+        for p in (p for p in dash["panels"] if p["type"] == "stat"):
+            assert p["options"]["colorMode"] == "background_solid", (name, p["title"])
+
+
+def test_status_cells_in_tables_are_flat_colours_never_a_gradient(tmp_path):
+    for name, dash in _built(tmp_path).items():
+        for p in (p for p in dash["panels"] if p["type"] == "table"):
+            for o in p["fieldConfig"]["overrides"]:
+                for prop in o["properties"]:
+                    cell = prop["value"] if prop["id"] == "custom.cellOptions" else {}
+                    if cell.get("type") == "color-background":
+                        assert cell.get("mode") == "basic", (name, p["title"])

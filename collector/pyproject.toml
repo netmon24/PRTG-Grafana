@@ -1,6 +1,6 @@
 [project]
 name = "prtg-collector"
-version = "0.3.3"
+version = "0.3.4"
 license = "Apache-2.0"
 authors = [{ name = "netmon24 GmbH & Co. KG" }]
 description = "Holt PRTG-API-v2-Daten und schreibt sie in InfluxDB"

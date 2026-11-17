@@ -69,6 +69,22 @@
   ],
   "panels": [
     {
+      "id": 12,
+      "type": "text",
+      "title": "",
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 24,
+        "h": 3
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "<div style=\"text-align:center;font-family:Montserrat,Roboto,sans-serif\"><div style=\"font-size:38px;font-weight:600;line-height:1.2\">Probe- und Core-Health</div>\n\n<div style=\"font-size:16px;opacity:.8\">Wie geht es der PRTG-Probe und dem PRTG-Server selbst?</div></div>"
+      },
+      "transparent": true
+    },
+    {
       "id": 1,
       "type": "stat",
       "title": "Zustand der Probe (Sensor 1003)",
@@ -78,7 +94,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 0,
+        "y": 3,
         "w": 8,
         "h": 4
       },
@@ -146,10 +162,14 @@
         "overrides": []
       },
       "options": {
-        "colorMode": "background",
+        "colorMode": "background_solid",
         "graphMode": "none",
         "textMode": "value_and_name",
         "justifyMode": "center",
+        "text": {
+          "titleSize": 14,
+          "valueSize": 48
+        },
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -169,7 +189,7 @@
       },
       "gridPos": {
         "x": 8,
-        "y": 0,
+        "y": 3,
         "w": 16,
         "h": 4
       },
@@ -237,10 +257,14 @@
         "overrides": []
       },
       "options": {
-        "colorMode": "background",
+        "colorMode": "background_solid",
         "graphMode": "none",
         "textMode": "value_and_name",
         "justifyMode": "center",
+        "text": {
+          "titleSize": 14,
+          "valueSize": 48
+        },
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -260,7 +284,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 4,
+        "y": 7,
         "w": 12,
         "h": 8
       },
@@ -331,7 +355,7 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 4,
+        "y": 7,
         "w": 12,
         "h": 8
       },
@@ -402,7 +426,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 12,
+        "y": 15,
         "w": 12,
         "h": 8
       },
@@ -453,7 +477,7 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 12,
+        "y": 15,
         "w": 12,
         "h": 8
       },
@@ -524,7 +548,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 20,
+        "y": 23,
         "w": 12,
         "h": 8
       },
@@ -595,7 +619,7 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 20,
+        "y": 23,
         "w": 12,
         "h": 8
       },
@@ -642,7 +666,7 @@
       "title": "Hinweis zur Anzeige",
       "gridPos": {
         "x": 4,
-        "y": 28,
+        "y": 31,
         "w": 16,
         "h": 4
       },
@@ -661,7 +685,7 @@
       },
       "gridPos": {
         "x": 20,
-        "y": 28,
+        "y": 31,
         "w": 4,
         "h": 4
       },
@@ -704,20 +728,20 @@
         "overrides": []
       },
       "options": {
-        "colorMode": "background",
+        "colorMode": "background_solid",
         "graphMode": "none",
         "textMode": "value",
         "justifyMode": "center",
+        "text": {
+          "titleSize": 11,
+          "valueSize": 18
+        },
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
           ],
           "fields": "",
           "values": false
-        },
-        "text": {
-          "titleSize": 11,
-          "valueSize": 18
         }
       }
     }

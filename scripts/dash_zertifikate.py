@@ -144,7 +144,7 @@ def _bargauge() -> dict[str, Any]:
     }
     panel["options"] = {
         "orientation": "horizontal",
-        "displayMode": "gradient",
+        "displayMode": "basic",
         "valueMode": "text",
         "showUnfilled": True,
         "reduceOptions": {"calcs": [], "fields": "/^_value$/", "values": True, "limit": 30},

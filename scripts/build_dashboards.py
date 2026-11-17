@@ -202,6 +202,38 @@ def availability_by_device(period: str, hourly: bool, label: str = "") -> str:
   |> map(fn: (r) => ({{key: r.core + "/" + r.device_id, "{name}": 100.0 * (1.0 - r.down / r.counted)}}))"""
 
 
+def problem_devices() -> str:
+    """Die zehn Geräte mit den meisten Sensoren in Ausfall oder Warnung, aktueller Stand."""
+    return f"""from(bucket: v.defaultBucket)
+  |> range(start: {NOW})
+  |> filter(fn: (r) => r._measurement == "prtg_device" and (r._field == "sensors_down" or r._field == "sensors_warning"))
+  {filters(device=True)}
+  {LAST_DEVICE}
+  |> group(columns: ["core", "device_id", "device"])
+  |> sum()
+  |> filter(fn: (r) => r._value > 0)
+  |> map(fn: (r) => ({{label: r.device + " (" + r.core + ")", _value: r._value}}))
+  |> group()
+  |> sort(columns: ["_value"], desc: true)
+  |> limit(n: 10)"""
+
+
+def worst_availability(period: str) -> str:
+    """Die zehn Geräte mit der geringsten Verfügbarkeit in Prozent, schlechtestes zuerst. Wie `availability_by_device`."""
+    return f"""from(bucket: v.defaultBucket)
+  |> range(start: {period})
+  |> filter(fn: (r) => r._measurement == "prtg_device" and r._field == "status_code")
+  {filters(device=True)}
+{_FLAGS}
+  |> group(columns: ["core", "device_id", "device"])
+  |> reduce(identity: {{down: 0.0, counted: 0.0}}, fn: (r, accumulator) => ({{down: accumulator.down + r.down, counted: accumulator.counted + r.counted}}))
+  |> filter(fn: (r) => r.counted > 0.0)
+  |> map(fn: (r) => ({{label: r.device + " (" + r.core + ")", _value: 100.0 * (1.0 - r.down / r.counted)}}))
+  |> group()
+  |> sort(columns: ["_value"])
+  |> limit(n: 10)"""
+
+
 def availability_overall(period: str, hourly: bool) -> str:
     """Gesamtverfügbarkeit aller gewählten Geräte in Prozent."""
     if hourly:
@@ -424,10 +456,11 @@ def stat(
         "targets": [{"refId": "A", "datasource": DS, "query": query}],
         "fieldConfig": {"defaults": defaults, "overrides": []},
         "options": {
-            "colorMode": "background",
+            "colorMode": "background_solid",
             "graphMode": "none",
             "textMode": "value",
             "justifyMode": "center",
+            "text": {"titleSize": 14, "valueSize": 48},
             "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": False},
         },
     }
@@ -439,6 +472,88 @@ def status_mapping() -> list[dict[str, Any]]:
         for k, (text, color) in STATUS_MAP.items()
     }
     return [{"type": "value", "options": options}]
+
+
+# Rohe Feldnamen der Abfragen und ihre deutschen Spaltenköpfe, für alle Tabellen gleich
+COLUMN_NAMES = {
+    "_time": "Zeit",
+    "core": "Core",
+    "device": "Gerät",
+    "dns_name": "DNS-Name",
+    "message": "Meldung",
+    "sensor": "Sensor",
+    "sensor_type": "Sensortyp",
+    "errors": "Fehler",
+    "duration_ms": "Dauer",
+    "objects_read": "Objekte gelesen",
+    "last_error": "Letzter Fehler",
+}
+
+
+def column_overrides() -> list[dict[str, Any]]:
+    """Deutsche Spaltenköpfe, lesbare Zeit, Dauer in Millisekunden mit Auto-Einheit, Fehlerzahl ab 1 rot."""
+    extra: dict[str, list[dict[str, Any]]] = {
+        "_time": [{"id": "unit", "value": "time: DD.MM.YYYY HH:mm:ss"}],
+        "duration_ms": [{"id": "unit", "value": "ms"}],
+        "errors": [
+            {
+                "id": "thresholds",
+                "value": {
+                    "mode": "absolute",
+                    "steps": [{"color": GREEN, "value": None}, {"color": RED, "value": 1}],
+                },
+            },
+            {"id": "custom.cellOptions", "value": {"type": "color-text"}},
+        ],
+    }
+    return [
+        {
+            "matcher": {"id": "byName", "options": raw},
+            "properties": [{"id": "displayName", "value": german}, *extra.get(raw, [])],
+        }
+        for raw, german in COLUMN_NAMES.items()
+    ]
+
+
+def top_bars(
+    pid: int,
+    title: str,
+    query: str,
+    pos: tuple[int, int, int, int],
+    steps: list[dict[str, Any]],
+    unit: str = "none",
+    maximum: int | None = None,
+) -> dict[str, Any]:
+    """Waagerechte Balken, einfarbig nach Schwelle. Die Abfrage liefert je Zeile `label` und `_value`."""
+    defaults: dict[str, Any] = {
+        "unit": unit,
+        "min": 0,
+        "decimals": 1 if unit == "percent" else 0,
+        "noValue": "Keine Daten im gewählten Zeitraum",
+        "color": {"mode": "thresholds"},
+        "thresholds": {"mode": "absolute", "steps": steps},
+    }
+    if maximum is not None:
+        defaults["max"] = maximum
+    return {
+        "id": pid,
+        "type": "bargauge",
+        "title": title,
+        "datasource": DS,
+        "gridPos": _gridpos(*pos),
+        "targets": [{"refId": "A", "datasource": DS, "query": query}],
+        "fieldConfig": {"defaults": defaults, "overrides": []},
+        "options": {
+            "orientation": "horizontal",
+            "displayMode": "basic",
+            "valueMode": "color",
+            "namePlacement": "left",
+            "showUnfilled": True,
+            "minVizHeight": 16,
+            "text": {"titleSize": 14, "valueSize": 16},
+            "reduceOptions": {"calcs": [], "fields": "/^_value$/", "values": True},
+        },
+    }
 
 
 def table(
@@ -458,7 +573,7 @@ def table(
                 "matcher": {"id": "byName", "options": col},
                 "properties": [
                     {"id": "mappings", "value": status_mapping()},
-                    {"id": "custom.cellOptions", "value": {"type": "color-background"}},
+                    {"id": "custom.cellOptions", "value": {"type": "color-background", "mode": "basic"}},
                     {"id": "displayName", "value": "Status"},
                 ],
             }
@@ -478,11 +593,11 @@ def table(
                 "noValue": "Keine Daten im gewählten Zeitraum",
                 "custom": {"align": "auto"},
             },
-            "overrides": ov + (overrides or []),
+            "overrides": ov + column_overrides() + (overrides or []),
         },
         "options": {
             "showHeader": True,
-            "cellHeight": "sm",
+            "cellHeight": "md",
             "sortBy": [{"displayName": sort_by, "desc": False}] if sort_by else [],
         },
     }
@@ -511,7 +626,7 @@ def status_cell(column: str, display: str) -> dict[str, Any]:
         "matcher": {"id": "byName", "options": column},
         "properties": [
             {"id": "mappings", "value": status_mapping()},
-            {"id": "custom.cellOptions", "value": {"type": "color-background"}},
+            {"id": "custom.cellOptions", "value": {"type": "color-background", "mode": "basic"}},
             {"id": "displayName", "value": display},
         ],
     }
@@ -722,6 +837,47 @@ def _footer(panels: list[dict[str, Any]], vars_: Iterable[dict[str, Any]]) -> li
     return [note, fresh]
 
 
+BANNER_H = 3  # Höhe der Titelzeile; sie zählt nicht zu den höchstens 12 Panels
+BANNER_TEXT = {
+    "prtg-uebersicht": "Wie steht es um alle Sensoren, und was sind die offenen Probleme?",
+    "prtg-verfuegbarkeit": "Wie viel Prozent der Zeit war jedes Gerät erreichbar, von 24 Stunden bis 365 Tagen?",
+    "prtg-tag-ansicht": "Vorlage für eigene Ansichten: Tags wählen, dann unter eigenem Namen speichern.",
+    "prtg-kanalverlauf": "Der Verlauf eines Messwerts, mit Vergleich zu gestern und zur Vorwoche.",
+    "prtg-ereignisse": "Wann hat welcher Sensor seinen Status gewechselt?",
+    "prtg-probe-health": "Wie geht es der PRTG-Probe und dem PRTG-Server selbst?",
+    "prtg-sensorstatus": "Alle Sensoren auf einen Blick, nach Status und Gruppe.",
+    "prtg-gruppenstatus": "Eine Kachel je Gruppe: wo gibt es Warnungen und Ausfälle?",
+    "prtg-festplatten": "Belegt und frei je Laufwerk.",
+    "prtg-dns-ad": "Status und Antwortzeiten von DNS und Active Directory.",
+    "prtg-zertifikate": "Wie lange sind die Zertifikate noch gültig?",
+    "prtg-webseiten": "Status, Antwortcode und Ladezeit der überwachten Webseiten.",
+    "prtg-geraetestatus": "Filtervorlage für eigene Ansichten: der Status je Gerät.",
+}
+
+
+def _banner(uid: str, title: str, pid: int) -> dict[str, Any]:
+    """Große Überschrift mit einem Satz darunter, ohne Rahmen. Titel ohne die Nummer und den Klammerzusatz."""
+    name = title.lstrip("0123456789 ").split(" (")[0]
+    content = (
+        '<div style="text-align:center;font-family:Montserrat,Roboto,sans-serif">'
+        f'<div style="font-size:38px;font-weight:600;line-height:1.2">{name}</div>\n\n'
+        f'<div style="font-size:16px;opacity:.8">{BANNER_TEXT.get(uid, "")}</div></div>'
+    )
+    panel = text(pid, "", content, (0, 0, 24, BANNER_H))
+    panel["transparent"] = True
+    return panel
+
+
+def _with_banner(
+    uid: str, title: str, panels: list[dict[str, Any]], vars_: Iterable[dict[str, Any]]
+) -> list[dict[str, Any]]:
+    """Schiebt alle Felder unter die Titelzeile und hängt unten das Datenstand-Feld an."""
+    for p in panels:
+        p["gridPos"]["y"] += BANNER_H
+    body = [*panels, *_footer(panels, vars_)]
+    return [_banner(uid, title, max(p["id"] for p in body) + 1), *body]
+
+
 def _dashboard(
     uid: str,
     title: str,
@@ -753,9 +909,7 @@ def _dashboard(
                 "keepTime": True,
             }
         ],
-        "panels": (lambda kept: [*kept, *_footer(kept, templating["list"])])(
-            _without_old_freshness(panels)
-        ),
+        "panels": _with_banner(uid, title, _without_old_freshness(panels), templating["list"]),
     }
 
 
@@ -814,7 +968,7 @@ def overview() -> dict[str, Any]:
             7,
             "Offene Probleme",
             [problems_table()],
-            (0, 4, 24, 10),
+            (0, 4, 24, 8),
             status_columns=("status_code",),
             overrides=[device_link("device")],
         ),
@@ -825,13 +979,20 @@ def overview() -> dict[str, Any]:
                 (status_history(2, "Ausfall"), "Ausfall", RED),
                 (status_history(1, "Warnung"), "Warnung", YELLOW),
             ],
-            (0, 14, 14, 8),
+            (0, 12, 12, 10),
+        ),
+        top_bars(
+            10,
+            "Zehn Geräte mit den meisten Sensorproblemen",
+            problem_devices(),
+            (12, 12, 12, 10),
+            [{"color": YELLOW, "value": None}, {"color": RED, "value": 3}],  # ab 3 Sensoren rot
         ),
         table(
             9,
             "Collector-Gesundheit je Core",
             [collector_table(), collector_errors()],
-            (14, 14, 10, 8),
+            (0, 22, 24, 6),
             transformations=[
                 {"id": "joinByField", "options": {"byField": "core", "mode": "outer"}},
                 {
@@ -925,11 +1086,24 @@ def availability() -> dict[str, Any]:
         for _, _, label in periods
     ]
     panels = tiles + [
+        top_bars(
+            8,
+            "Zehn Geräte mit der schlechtesten Verfügbarkeit (24 Stunden)",
+            worst_availability("-24h"),
+            (0, 4, 24, 10),
+            [
+                {"color": RED, "value": None},
+                {"color": YELLOW, "value": 95},
+                {"color": GREEN, "value": 99},
+            ],
+            unit="percent",
+            maximum=100,
+        ),
         table(
             5,
             "Verfügbarkeit je Maschine und Gerät",
             targets,
-            (0, 4, 24, 14),
+            (0, 14, 24, 14),
             status_columns=("Status",),
             transformations=transformations,
             overrides=[*percent, device_link("Gerät")],
@@ -942,19 +1116,19 @@ def availability() -> dict[str, Any]:
             "zählen; pausierte und unbekannte Zeiten zählen nicht). Sie ist eine **Näherung** und kann von der "
             "Berechnung in PRTG abweichen. Die Zeiträume 30 und 365 Tage lesen die Stundenverdichtung und füllen sich "
             "mit jeder vollen Stunde.",
-            (0, 18, 24, 3),
+            (0, 28, 24, 3),
         ),
         stat(
             7,
             "Datenstand (Alter des letzten Abrufs)",
             freshness(),
-            (0, 21, 6, 3),
+            (0, 31, 6, 3),
             unit="s",
             step=(180, YELLOW),
             no_value="kein Abruf",
         ),
     ]
-    panels[6]["fieldConfig"]["defaults"]["thresholds"]["steps"].append({"color": RED, "value": 600})
+    panels[-1]["fieldConfig"]["defaults"]["thresholds"]["steps"].append({"color": RED, "value": 600})
     return _dashboard(
         "prtg-verfuegbarkeit",
         "2 Verfügbarkeit Maschinen und Geräte",

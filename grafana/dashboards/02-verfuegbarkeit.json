@@ -188,6 +188,22 @@
   ],
   "panels": [
     {
+      "id": 11,
+      "type": "text",
+      "title": "",
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 24,
+        "h": 3
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "<div style=\"text-align:center;font-family:Montserrat,Roboto,sans-serif\"><div style=\"font-size:38px;font-weight:600;line-height:1.2\">Verfügbarkeit Maschinen und Geräte</div>\n\n<div style=\"font-size:16px;opacity:.8\">Wie viel Prozent der Zeit war jedes Gerät erreichbar, von 24 Stunden bis 365 Tagen?</div></div>"
+      },
+      "transparent": true
+    },
+    {
       "id": 1,
       "type": "stat",
       "title": "Verfügbarkeit 24 Stunden",
@@ -197,7 +213,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 0,
+        "y": 3,
         "w": 6,
         "h": 4
       },
@@ -240,10 +256,14 @@
         "overrides": []
       },
       "options": {
-        "colorMode": "background",
+        "colorMode": "background_solid",
         "graphMode": "none",
         "textMode": "value",
         "justifyMode": "center",
+        "text": {
+          "titleSize": 14,
+          "valueSize": 48
+        },
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -263,7 +283,7 @@
       },
       "gridPos": {
         "x": 6,
-        "y": 0,
+        "y": 3,
         "w": 6,
         "h": 4
       },
@@ -306,10 +326,14 @@
         "overrides": []
       },
       "options": {
-        "colorMode": "background",
+        "colorMode": "background_solid",
         "graphMode": "none",
         "textMode": "value",
         "justifyMode": "center",
+        "text": {
+          "titleSize": 14,
+          "valueSize": 48
+        },
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -329,7 +353,7 @@
       },
       "gridPos": {
         "x": 12,
-        "y": 0,
+        "y": 3,
         "w": 6,
         "h": 4
       },
@@ -372,10 +396,14 @@
         "overrides": []
       },
       "options": {
-        "colorMode": "background",
+        "colorMode": "background_solid",
         "graphMode": "none",
         "textMode": "value",
         "justifyMode": "center",
+        "text": {
+          "titleSize": 14,
+          "valueSize": 48
+        },
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -395,7 +423,7 @@
       },
       "gridPos": {
         "x": 18,
-        "y": 0,
+        "y": 3,
         "w": 6,
         "h": 4
       },
@@ -438,16 +466,92 @@
         "overrides": []
       },
       "options": {
-        "colorMode": "background",
+        "colorMode": "background_solid",
         "graphMode": "none",
         "textMode": "value",
         "justifyMode": "center",
+        "text": {
+          "titleSize": 14,
+          "valueSize": 48
+        },
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
           ],
           "fields": "",
           "values": false
+        }
+      }
+    },
+    {
+      "id": 8,
+      "type": "bargauge",
+      "title": "Zehn Geräte mit der schlechtesten Verfügbarkeit (24 Stunden)",
+      "datasource": {
+        "type": "influxdb",
+        "uid": "prtg-influx"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 7,
+        "w": 24,
+        "h": 10
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "prtg-influx"
+          },
+          "query": "from(bucket: v.defaultBucket)\n  |> range(start: -24h)\n  |> filter(fn: (r) => r._measurement == \"prtg_device\" and r._field == \"status_code\")\n  |> filter(fn: (r) => r.core =~ /^${core:regex}$/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag:regex}(\\||$)/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag2:regex}(\\||$)/)\n  |> filter(fn: (r) => r.prtg_tags =~ /(^|\\|)${tag3:regex}(\\||$)/)\n  |> filter(fn: (r) => r.group =~ /^${group:regex}$/)\n  |> filter(fn: (r) => r.device =~ /^${device:regex}$/)\n  |> map(fn: (r) => ({r with down: if r._value == 2 then 1.0 else 0.0, counted: if r._value <= 2 then 1.0 else 0.0}))\n  |> group(columns: [\"core\", \"device_id\", \"device\"])\n  |> reduce(identity: {down: 0.0, counted: 0.0}, fn: (r, accumulator) => ({down: accumulator.down + r.down, counted: accumulator.counted + r.counted}))\n  |> filter(fn: (r) => r.counted > 0.0)\n  |> map(fn: (r) => ({label: r.device + \" (\" + r.core + \")\", _value: 100.0 * (1.0 - r.down / r.counted)}))\n  |> group()\n  |> sort(columns: [\"_value\"])\n  |> limit(n: 10)"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "decimals": 1,
+          "noValue": "Keine Daten im gewählten Zeitraum",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#e5484d",
+                "value": null
+              },
+              {
+                "color": "#f2c94c",
+                "value": 95
+              },
+              {
+                "color": "#35d763",
+                "value": 99
+              }
+            ]
+          },
+          "max": 100
+        },
+        "overrides": []
+      },
+      "options": {
+        "orientation": "horizontal",
+        "displayMode": "basic",
+        "valueMode": "color",
+        "namePlacement": "left",
+        "showUnfilled": true,
+        "minVizHeight": 16,
+        "text": {
+          "titleSize": 14,
+          "valueSize": 16
+        },
+        "reduceOptions": {
+          "calcs": [],
+          "fields": "/^_value$/",
+          "values": true
         }
       }
     },
@@ -461,7 +565,7 @@
       },
       "gridPos": {
         "x": 0,
-        "y": 4,
+        "y": 17,
         "w": 24,
         "h": 14
       },
@@ -589,12 +693,175 @@
               {
                 "id": "custom.cellOptions",
                 "value": {
-                  "type": "color-background"
+                  "type": "color-background",
+                  "mode": "basic"
                 }
               },
               {
                 "id": "displayName",
                 "value": "Status"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "_time"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Zeit"
+              },
+              {
+                "id": "unit",
+                "value": "time: DD.MM.YYYY HH:mm:ss"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "core"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Core"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "device"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Gerät"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "dns_name"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "DNS-Name"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "message"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Meldung"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "sensor"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Sensor"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "sensor_type"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Sensortyp"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "errors"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Fehler"
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "#35d763",
+                      "value": null
+                    },
+                    {
+                      "color": "#e5484d",
+                      "value": 1
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "duration_ms"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Dauer"
+              },
+              {
+                "id": "unit",
+                "value": "ms"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "objects_read"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Objekte gelesen"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "last_error"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Letzter Fehler"
               }
             ]
           },
@@ -787,7 +1054,7 @@
       },
       "options": {
         "showHeader": true,
-        "cellHeight": "sm",
+        "cellHeight": "md",
         "sortBy": [
           {
             "displayName": "Gerät",
@@ -802,7 +1069,7 @@
       "title": "Hinweis zur Berechnung",
       "gridPos": {
         "x": 0,
-        "y": 18,
+        "y": 31,
         "w": 24,
         "h": 3
       },
@@ -812,12 +1079,12 @@
       }
     },
     {
-      "id": 7,
+      "id": 9,
       "type": "text",
       "title": "Hinweis zur Anzeige",
       "gridPos": {
         "x": 4,
-        "y": 21,
+        "y": 34,
         "w": 16,
         "h": 4
       },
@@ -827,7 +1094,7 @@
       }
     },
     {
-      "id": 8,
+      "id": 10,
       "type": "stat",
       "title": "Datenstand (Alter des letzten Abrufs)",
       "datasource": {
@@ -836,7 +1103,7 @@
       },
       "gridPos": {
         "x": 20,
-        "y": 21,
+        "y": 34,
         "w": 4,
         "h": 4
       },
@@ -879,20 +1146,20 @@
         "overrides": []
       },
       "options": {
-        "colorMode": "background",
+        "colorMode": "background_solid",
         "graphMode": "none",
         "textMode": "value",
         "justifyMode": "center",
+        "text": {
+          "titleSize": 11,
+          "valueSize": 18
+        },
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
           ],
           "fields": "",
           "values": false
-        },
-        "text": {
-          "titleSize": 11,
-          "valueSize": 18
         }
       }
     }

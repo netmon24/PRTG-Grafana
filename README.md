@@ -11,7 +11,7 @@ Ihre PRTG-Daten, frei auswertbar: Dieses Paket von netmon24 holt Messwerte und Z
 
 PRTG wird dabei **nur gelesen**. Es wird nichts in PRTG angelegt, geändert oder pausiert.
 
-Aktuelle Version: 0.3.3. Läuft mit Docker, die fertigen Images gibt es kostenlos in der GitHub-Registry.
+Aktuelle Version: 0.3.4. Läuft mit Docker, die fertigen Images gibt es kostenlos in der GitHub-Registry.
 
 ## Was Sie bekommen
 
